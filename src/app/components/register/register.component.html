@@ -1,0 +1,117 @@
+<div class="register-split">
+  <div class="left-panel" aria-hidden="true">
+    <img src="login.png" alt="Registration illustration" />
+  </div>
+
+  <div class="right-panel">
+    <div class="register-card">
+      <div class="register-header">
+        <h2>Join UoN Marketplace</h2>
+        <p>Create your account to start buying and selling</p>
+      </div>
+
+      <form class="register-form" (ngSubmit)="onSubmit()">
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" [(ngModel)]="registerForm.email" (input)="validateEmail()" (blur)="validateEmail()" [class.invalid]="!emailValid && emailTouched" placeholder="Enter your email" class="form-control" required>
+          <div class="error-message" *ngIf="!emailValid && emailTouched">Please enter a valid email address</div>
+        </div>
+
+        <!-- Name Fields -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" name="firstName" [(ngModel)]="registerForm.firstName" (input)="validateFirstName()" (blur)="validateFirstName()" [class.invalid]="!firstNameValid && firstNameTouched" placeholder="First name" class="form-control" required>
+            <div class="error-message" *ngIf="!firstNameValid && firstNameTouched">First name must be at least 2 characters</div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" name="lastName" [(ngModel)]="registerForm.lastName" (input)="validateLastName()" (blur)="validateLastName()" [class.invalid]="!lastNameValid && lastNameTouched" placeholder="Last name" class="form-control" required>
+            <div class="error-message" *ngIf="!lastNameValid && lastNameTouched">Last name must be at least 2 characters</div>
+          </div>
+        </div>
+
+        <!-- Password Fields -->
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input type="password" id="password" name="password" [(ngModel)]="registerForm.password" (input)="validatePassword()" (blur)="validatePassword()" [class.invalid]="!passwordValid && passwordTouched" placeholder="Create a password" class="form-control" required>
+          <div class="error-message" *ngIf="(!passwordValid || !passwordSpecialChar) && passwordTouched">
+            <div>Requirements:</div>
+            <div>- Your password should be at least 8 characters long</div>
+            <div>- Must include a special character</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password *</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="registerForm.confirmPassword" (input)="validateConfirmPassword()" (blur)="validateConfirmPassword()" [class.invalid]="!passwordsMatch && confirmPasswordTouched" placeholder="Confirm your password" class="form-control" required>
+          <div class="error-message" *ngIf="!passwordsMatch && confirmPasswordTouched">Passwords do not match</div>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number *</label>
+          <input type="tel" id="phoneNumber" name="phoneNumber" [(ngModel)]="registerForm.phoneNumber" (input)="validatePhone()" (blur)="validatePhone()" [class.invalid]="!phoneValid && phoneTouched" placeholder="Your phone number" class="form-control" required>
+          <div class="error-message" *ngIf="!phoneValid && phoneTouched">Phone number is required</div>
+        </div>
+
+        <!-- Error and Success Messages -->
+        <div class="message error-message-global" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="message success-message-global" *ngIf="successMessage">{{ successMessage }}</div>
+
+        <!-- Terms -->
+        <div class="form-group terms-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="agreeToTerms" [(ngModel)]="agreeToTerms" (change)="validateTerms()" required>
+            <span>By registering, I agree to UoN Marketplace <a (click)="openTermsModal()" class="terms-link">Terms of Use</a></span>
+          </label>
+          <div class="error-message" *ngIf="!termsValid && termsTouched">You must agree to the terms and conditions</div>
+        </div>
+
+        <!-- Submit Button -->
+  <button type="submit" class="register-btn btn btn-primary" [disabled]="!isFormValid() || isLoading">
+          <span *ngIf="!isLoading">Create Account</span>
+          <span *ngIf="isLoading">Creating Account...</span>
+        </button>
+
+        <!-- Login Link -->
+        <div class="login-link">
+          Already have an account? <a (click)="goToLogin()" class="link">Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal-overlay" *ngIf="showTermsModal" (click)="closeTermsModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Terms & Conditions</h2>
+      <button class="close-btn" (click)="closeTermsModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="terms-content">
+        <h3>UoN Marketplace Terms of Use</h3>
+        <div class="pending-notice">
+          <p>Terms and Conditions are currently being finalized and will be available soon.</p>
+        </div>
+        <div class="placeholder-terms">
+          <h4>Key Points:</h4>
+          <ul>
+            <li>This marketplace is exclusively for UoN students and staff</li>
+            <li>Users are responsible for the accuracy of their listings</li>
+            <li>Prohibited items include academic materials that violate academic integrity policies</li>
+            <li>The platform reserves the right to remove inappropriate content</li>
+            <li>Users consent to receiving platform-related communications</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeTermsModal()">Close</button>
+    </div>
+  </div>
+</div>

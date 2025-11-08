@@ -1,0 +1,121 @@
+<div class="admin-settings-page">
+	<header class="settings-header">
+		<div>
+			<h1>Admin Settings</h1>
+			<p class="subtitle">Centralized control for moderation, security & system configuration.</p>
+		</div>
+		<div class="env-chip">Environment: <strong>{{ 'Production' }}</strong></div>
+	</header>
+
+	<section class="settings-grid">
+		<!-- Moderation Keywords Card -->
+		<div class="settings-card keywords">
+			<div class="card-head">
+				<h2><i class="fas fa-shield-alt"></i> Prohibited Keywords</h2>
+				<button type="button" class="btn text" (click)="loadKeywords()" [disabled]="loading"><i class="fas fa-sync" [class.spin]="loading"></i> Refresh</button>
+			</div>
+			<p class="card-desc">Configure automatic moderation triggers for listings & reviews.</p>
+
+			<form class="keyword-form" [formGroup]="form" (ngSubmit)="submit()">
+				<div class="row">
+					<input class="input" placeholder="Keyword (e.g. 'gun')" formControlName="keyword" />
+					<select class="select" formControlName="category">
+						<option value="">No category</option>
+						<option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+					</select>
+					<select class="select" formControlName="severity">
+						<option *ngFor="let s of severities" [value]="s">{{ s }}</option>
+					</select>
+					<select class="select" formControlName="autoAction">
+						<option *ngFor="let a of autoActions" [value]="a">{{ a }}</option>
+					</select>
+					<button class="btn primary" [disabled]="form.invalid || adding">Add</button>
+				</div>
+				<div class="hint" *ngIf="form.invalid && form.touched">Fill required fields.</div>
+			</form>
+
+			<div *ngIf="loading" class="loading-block"><i class="fas fa-spinner fa-spin"></i> Loading keywords...</div>
+			<div *ngIf="error" class="error-block">{{ error }}</div>
+
+			<div class="keywords-table" *ngIf="!loading && keywords.length">
+				<div class="thead">
+					<div>Keyword</div>
+					<div>Category</div>
+					<div>Severity</div>
+					<div>Auto Action</div>
+					<div></div>
+				</div>
+			<div class="trow" *ngFor="let k of keywords; let i = index">
+				<div class="kw-text">{{ k.keyword }}</div>
+				<div class="kw-cat">{{ k.category || '—' }}</div>
+				<div><span class="badge severity" [ngClass]="k.severity.toLowerCase()">{{ k.severity }}</span></div>
+				<div><span class="badge action" [ngClass]="k.autoAction.toLowerCase()">{{ k.autoAction }}</span></div>
+				<div class="row-actions">
+					<button class="btn danger ghost" (click)="remove(k)"><i class="fas fa-trash"></i></button>
+				</div>
+			</div>
+			</div>
+			<div *ngIf="!loading && !keywords.length" class="empty-inline">
+				<i class="fas fa-list"></i> No keywords yet.
+			</div>
+		</div>
+
+		<!-- Security Toggles Card -->
+		<div class="settings-card security">
+			<div class="card-head">
+				<h2><i class="fas fa-lock"></i> Security & Access</h2>
+			</div>
+			<p class="card-desc">High-level switches to enforce stricter platform rules.</p>
+			<div class="toggle-list">
+				<label class="toggle-item">
+					<input type="checkbox" />
+					<span class="lbl">Force email verification before listing</span>
+				</label>
+				<label class="toggle-item">
+					<input type="checkbox" />
+					<span class="lbl">Enable 2FA requirement for admins</span>
+				</label>
+				<label class="toggle-item">
+					<input type="checkbox" />
+					<span class="lbl">Auto-hide listings flagged ≥ 3 times</span>
+				</label>
+				<label class="toggle-item">
+					<input type="checkbox" />
+					<span class="lbl">Notify admins on high severity keyword usage</span>
+				</label>
+			</div>
+			<div class="hint small">(Toggles are UI-only placeholders; wire to backend config endpoints later.)</div>
+		</div>
+
+		<!-- System Info Card -->
+		<div class="settings-card system">
+			<div class="card-head">
+				<h2><i class="fas fa-info-circle"></i> System Status</h2>
+			</div>
+			<p class="card-desc">Operational snapshot & maintenance tools.</p>
+			<ul class="stats-list">
+				<li><span class="label">Version:</span> <span class="value">v1.0.0</span></li>
+				<li><span class="label">Uptime:</span> <span class="value">—</span></li>
+				<li><span class="label">Active Users:</span> <span class="value">—</span></li>
+				<li><span class="label">Pending Reports:</span> <span class="value">—</span></li>
+			</ul>
+			<div class="actions-inline">
+				<button class="btn ghost"><i class="fas fa-database"></i> Backup Now</button>
+				<button class="btn warn ghost"><i class="fas fa-exclamation-triangle"></i> Enter Maintenance</button>
+			</div>
+			<div class="hint small">(Buttons are placeholders; integrate with ops endpoints.)</div>
+		</div>
+
+		<!-- Automation Rules Card -->
+		<div class="settings-card automation">
+			<div class="card-head">
+				<h2><i class="fas fa-robot"></i> Automation Rules</h2>
+			</div>
+			<p class="card-desc">Future area for rule builder (e.g., auto-ban repeated fraud attempts).</p>
+			<div class="placeholder-box">
+				<i class="fas fa-cogs"></i>
+				<p>Rule builder coming soon. Define triggers → actions workflows.</p>
+			</div>
+		</div>
+	</section>
+</div>

@@ -1,0 +1,148 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <h1>📊 Admin Dashboard</h1>
+    <p class="subtitle">Monitor and manage your marketplace</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i> Loading dashboard data...
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card users" (click)="navigateToUsers()">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ totalUsers }}</div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-details">
+            <span class="detail-item active">{{ activeUsers }} Active</span>
+            <span class="detail-item banned">{{ bannedUsers }} Banned</span>
+            <span class="detail-item pending">{{ pendingVerification }} Pending</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card listings" (click)="navigateToListings()">
+        <div class="stat-icon">
+          <i class="fas fa-list"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ totalListings }}</div>
+          <div class="stat-label">Total Listings</div>
+          <div class="stat-details">
+            <span class="detail-item active">{{ activeListings }} Available</span>
+            <span class="detail-item flagged">{{ flaggedListings }} Flagged</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card reports" (click)="navigateToReports()">
+        <div class="stat-icon">
+          <i class="fas fa-flag"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ pendingReports }}</div>
+          <div class="stat-label">Pending Reports</div>
+          <div class="stat-details">
+            <span class="detail-item">Awaiting Review</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card keywords" (click)="navigateToSettings()">
+        <div class="stat-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">Settings</div>
+          <div class="stat-label">Content Moderation</div>
+          <div class="stat-details">
+            <span class="detail-item">Manage Keywords</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>⚡ Quick Actions</h2>
+      <div class="actions-grid">
+        <button class="action-btn" (click)="navigateToUsers()">
+          <i class="fas fa-user-plus"></i>
+          <span>Manage Users</span>
+        </button>
+        <button class="action-btn" (click)="navigateToListings()">
+          <i class="fas fa-eye"></i>
+          <span>Review Flagged Items</span>
+        </button>
+        <button class="action-btn" (click)="navigateToReports()">
+          <i class="fas fa-clipboard-check"></i>
+          <span>Process Reports</span>
+        </button>
+        <button class="action-btn" (click)="navigateToSettings()">
+          <i class="fas fa-cog"></i>
+          <span>Configure Settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <div class="activity-section">
+        <h2>👥 Recent Users</h2>
+        <div class="activity-list">
+          <div *ngIf="recentUsers.length === 0" class="empty-state">
+            No recent users
+          </div>
+          <div *ngFor="let user of recentUsers" class="activity-item">
+            <div class="activity-avatar">
+              {{ (user.userProfile.firstName.charAt(0) || 'U') + (user.userProfile.lastName.charAt(0) || 'N') }}
+            </div>
+            <div class="activity-details">
+              <div class="activity-title">{{ user.userProfile.firstName }} {{ user.userProfile.lastName }}</div>
+              <div class="activity-subtitle">{{ user.appUser.email }}</div>
+            </div>
+            <div class="activity-badge" [ngClass]="{
+              'badge-active': user.appUser.status.toLowerCase() === 'active',
+              'badge-banned': user.appUser.status.toLowerCase() === 'banned',
+              'badge-pending': user.appUser.status.toLowerCase().includes('pending')
+            }">
+              {{ user.appUser.status }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="activity-section">
+        <h2>📦 Recent Listings</h2>
+        <div class="activity-list">
+          <div *ngIf="recentListings.length === 0" class="empty-state">
+            No recent listings
+          </div>
+          <div *ngFor="let listing of recentListings" class="activity-item">
+            <div class="activity-image" *ngIf="listing.productImageUrl || listing.productImages">
+              <img [src]="(listing.productImages?.[0] || listing.productImageUrl) | imageUrl" 
+                   [alt]="listing.productName"
+                   onerror="this.src='assets/placeholder.png'">
+            </div>
+            <div class="activity-details">
+              <div class="activity-title">{{ listing.productName }}</div>
+              <div class="activity-subtitle">{{ listing.category }} - ${{ listing.price }}</div>
+            </div>
+            <div class="activity-badge badge-success" *ngIf="listing.status === 'Available' || listing.status === 'AVAILABLE'">
+              Available
+            </div>
+            <div class="activity-badge badge-warning" *ngIf="listing.flagged">
+              Flagged
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

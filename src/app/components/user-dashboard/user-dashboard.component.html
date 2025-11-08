@@ -1,0 +1,246 @@
+<div class="user-dashboard">
+
+  <!-- Hero Section with Quick Actions -->
+  <section class="hero-section">
+    <div class="hero-container container">
+      <div class="hero-content">
+        <h1 class="hero-title">Welcome back, <span class="highlight">{{ getUserName() }}</span></h1>
+        <p class="hero-subtitle">Ready to buy or sell? Start exploring the marketplace</p>
+      </div>
+      
+      <div class="quick-actions-hero">
+        <button class="action-card primary" (click)="goToAddListing()">
+          <div class="action-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+          </div>
+          <div class="action-content">
+            <h3>Sell an Item</h3>
+            <p>List your items in minutes</p>
+          </div>
+        </button>
+
+        <button class="action-card secondary" (click)="goToBrowseListings()">
+          <div class="action-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </div>
+          <div class="action-content">
+            <h3>Browse Items</h3>
+            <p>Discover great deals</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Stats Banner -->
+      <div class="stats-banner">
+        <div class="stat-item" (click)="navigateToMyListings()" style="cursor: pointer;">
+          <div class="stat-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ totalListingsCount }}</div>
+            <div class="stat-label">My Listings</div>
+          </div>
+        </div>
+
+        <div class="stat-item" (click)="navigateToMyPurchases()" style="cursor: pointer;">
+          <div class="stat-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ totalPurchasesCount }}</div>
+            <div class="stat-label">Purchases</div>
+          </div>
+        </div>
+
+        <div class="stat-item" (click)="navigateToSavedProducts()" style="cursor: pointer;">
+          <div class="stat-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ savedProductsCount }}</div>
+            <div class="stat-label">Saved</div>
+          </div>
+        </div>
+
+        <div class="stat-item" (click)="navigateToMyReviews()" style="cursor: pointer;">
+          <div class="stat-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ getTotalReviewsReceived() }}</div>
+            <div class="stat-label">Reviews</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gumtree-style Search Bar -->
+      <div class="hero-search-bar">
+        <div class="search-container">
+          <div class="search-group category-group">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="group-icon">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+              <option value="">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Books & Media">Books & Media</option>
+              <option value="Clothing & Accessories">Clothing & Accessories</option>
+              <option value="Home & Garden">Home & Garden</option>
+              <option value="Sports & Outdoors">Sports & Outdoors</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="search-divider"></div>
+
+          <div class="search-group main-search">
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              (input)="applyFilters()" 
+              placeholder="I'm looking for...">
+          </div>
+
+          <div class="search-divider"></div>
+
+          <div class="search-group sort-group">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="group-icon">
+              <path d="M3 6h18M7 12h10M11 18h2"></path>
+            </svg>
+            <select [(ngModel)]="sortBy" (change)="applyFilters()">
+              <option value="recent">Newest</option>
+              <option value="price-low">Price: Low</option>
+              <option value="price-high">Price: High</option>
+              <option value="name">A to Z</option>
+            </select>
+          </div>
+
+          <button class="search-btn" (click)="applyFilters()">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+      
+  </section>
+
+  
+
+  <!-- Products Gallery Section -->
+  <section class="products-gallery">
+    <div class="gallery-container container">
+      <div class="section-header">
+        <div class="header-left">
+          <h2>Available in Marketplace</h2>
+          <p>Discover great deals from verified sellers</p>
+        </div>
+        <button class="view-all-btn btn btn-secondary" (click)="goToBrowseListings()">
+          See All Items
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingProducts" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading marketplace products...</p>
+      </div>
+
+      <!-- Products Grid -->
+      <div *ngIf="!isLoadingProducts && filteredProducts.length > 0" class="products-grid">
+        <div class="product-card" *ngFor="let product of filteredProducts">
+          <div class="product-image">
+            <img 
+              [src]="(getCurrentImage(product) | imageUrl) || 'assets/placeholder.svg'" 
+              [alt]="product.productName"
+              (error)="onImageError($event)"
+            />
+            
+            <!-- Image Navigation Arrows -->
+            <div *ngIf="hasMultipleImages(product)" class="image-nav">
+              <button class="nav-btn prev" (click)="previousImage(product, $event)" aria-label="Previous image">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="nav-btn next" (click)="nextImage(product, $event)" aria-label="Next image">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            
+            <!-- Image Indicator -->
+            <div *ngIf="hasMultipleImages(product)" class="image-indicator">
+              {{ getImageIndicator(product) }}
+            </div>
+            
+            <div class="price-badge">${{ product.price.toFixed(2) }}</div>
+            <div class="status-badge" [class.sold]="product.status && product.status.toLowerCase() === 'sold'">
+              {{ product.status || 'Available' }}
+            </div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.productName }}</h3>
+            <p class="product-category" *ngIf="product.category">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+              </svg>
+              {{ product.category }}
+            </p>
+            <div class="product-footer">
+              <span class="product-date">Posted {{ getRelativeTime(product.postedDate) }}</span>
+              <button class="btn btn-primary" (click)="goToBrowseListings()">View</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoadingProducts && filteredProducts.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg width="80" height="80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <h3>No items found</h3>
+        <p>Try adjusting your filters or check back later</p>
+        <button class="btn btn-primary" (click)="goToBrowseListings()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          Browse All Items
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

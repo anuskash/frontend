@@ -1,0 +1,62 @@
+<div class="admin-shell">
+  <!-- Admin Top Navbar -->
+  <header class="admin-navbar">
+    <div class="navbar-left">
+      <div class="brand-logo">
+        <span class="logo">🛡️</span>
+        <span class="brand-text">UoN Marketplace Admin</span>
+      </div>
+    </div>
+    
+    <div class="navbar-right">
+      <span class="welcome-text">Welcome, <strong>{{ currentUserEmail }}</strong></span>
+      <a routerLink="/admin/settings" class="nav-icon" title="Admin Settings">
+        <i class="fas fa-cog"></i>
+      </a>
+      <button class="btn-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </header>
+
+  <div class="admin-body">
+    <aside class="sidebar" [class.collapsed]="collapsed">
+      <div class="brand" (click)="toggleSidebar()">
+        <span class="logo">🛡️</span>
+        <span class="title">Admin</span>
+      </div>
+      <nav class="nav">
+        <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a routerLink="/admin/users" routerLinkActive="active">
+          <i class="fas fa-users"></i> Users
+        </a>
+        <a routerLink="/admin/listings" routerLinkActive="active">
+          <i class="fas fa-list"></i> Listings
+          <span *ngIf="flaggedProductsCount > 0" class="badge">{{ flaggedProductsCount }}</span>
+        </a>
+        <a routerLink="/admin/reports" routerLinkActive="active">
+          <i class="fas fa-flag"></i> Product Reports
+          <span *ngIf="pendingReportsCount > 0" class="badge">{{ pendingReportsCount }}</span>
+        </a>
+        <a routerLink="/admin/reviews" routerLinkActive="active">
+          <i class="fas fa-star"></i> Reviews
+        </a>
+        <a routerLink="/admin/audit" routerLinkActive="active">
+          <i class="fas fa-clipboard-list"></i> Audit
+        </a>
+        <a routerLink="/admin/settings" routerLinkActive="active">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+        <a routerLink="/user-dashboard">
+          <i class="fas fa-home"></i> Back to app
+        </a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

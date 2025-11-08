@@ -1,0 +1,343 @@
+<div class="admin-user-profile" *ngIf="!loading && userProfile">
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+      </button>
+      <h1>User Profile Details</h1>
+    </div>
+  </div>
+
+  <!-- User Basic Info -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2><i class="fas fa-user"></i> User Information</h2>
+    </div>
+    <div class="user-card">
+      <div class="user-avatar">
+     <img *ngIf="userProfile.userDetails.profileImageUrl" 
+       [src]="userProfile.userDetails.profileImageUrl | imageUrl" 
+             [alt]="userProfile.userDetails.firstName + ' ' + userProfile.userDetails.lastName"
+             class="profile-image">
+        <div *ngIf="!userProfile.userDetails.profileImageUrl" class="default-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+      <div class="user-info">
+        <h3>{{ userProfile.userDetails.firstName }} {{ userProfile.userDetails.lastName }}</h3>
+        <p class="email">{{ userProfile.userDetails.email }}</p>
+        <p class="join-date" *ngIf="userProfile.userDetails.createdAt">
+          <i class="fas fa-calendar"></i>
+          Joined {{ userProfile.userDetails.createdAt | date:'mediumDate' }}
+        </p>
+        <p class="phone" *ngIf="userProfile.userDetails.phoneNumber">
+          <i class="fas fa-phone"></i>
+          {{ userProfile.userDetails.phoneNumber }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Overview -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2><i class="fas fa-chart-bar"></i> Activity Overview</h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon products">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Products Listed</h4>
+          <span class="stat-number">{{ userProfile.totalProductsListed  }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purchases">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Products Purchased</h4>
+          <span class="stat-number">{{ userProfile.totalProductsPurchased }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon seller-rating">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Seller Rating</h4>
+          <span class="stat-number">{{ userProfile.averageSellerRating  | number:'1.1-1' }}</span>
+          <div class="rating-stars" *ngIf="(userProfile?.averageSellerRating ?? 0) > 0">
+            <i *ngFor="let star of getRatingStars(userProfile?.averageSellerRating ?? 0)" [class]="star"></i>
+          </div>
+          <span *ngIf="(userProfile?.averageSellerRating ?? 0) === 0" class="no-rating">No ratings</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon buyer-rating">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Buyer Rating</h4>
+          <span class="stat-number">{{ userProfile.averageBuyerRating  | number:'1.1-1' }}</span>
+          <div class="rating-stars" *ngIf="(userProfile?.averageBuyerRating ?? 0) > 0">
+            <i *ngFor="let star of getRatingStars(userProfile?.averageBuyerRating ?? 0)" [class]="star"></i>
+          </div>
+          <span *ngIf="(userProfile?.averageBuyerRating ?? 0) === 0" class="no-rating">No ratings</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Summary -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2><i class="fas fa-comments"></i> Reviews Summary</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-summary-card">
+        <h4><i class="fas fa-star text-seller"></i> As Seller</h4>
+        <div class="review-stats">
+          <p>Reviews Received: <strong>{{ userProfile.sellerReviewsReceived.length  }}</strong></p>
+          <p>Reviews Given: <strong>{{ userProfile.sellerReviewsGiven.length}}</strong></p>
+          <p>Average Rating: <strong>{{ userProfile.averageSellerRating | number:'1.1-1' }}/5</strong></p>
+        </div>
+      </div>
+      <div class="review-summary-card">
+        <h4><i class="fas fa-shopping-bag text-buyer"></i> As Buyer</h4>
+        <div class="review-stats">
+          <p>Reviews Received: <strong>{{ userProfile.buyerReviewsReceived.length }}</strong></p>
+          <p>Reviews Given: <strong>{{ userProfile.buyerReviewsGiven.length }}</strong></p>
+          <p>Average Rating: <strong>{{ userProfile.averageBuyerRating | number:'1.1-1' }}/5</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Reviews with Tabs -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2><i class="fas fa-comments"></i> Detailed Reviews</h2>
+    </div>
+    
+    <!-- Review Tabs -->
+    <div class="review-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeReviewTab === 'seller-received'"
+        (click)="setActiveReviewTab('seller-received')">
+        <i class="fas fa-star"></i>
+        Received as Seller
+        <span class="tab-count">({{ getReviewTabCount('seller-received') }})</span>
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeReviewTab === 'seller-given'"
+        (click)="setActiveReviewTab('seller-given')">
+        <i class="fas fa-star-half-alt"></i>
+        Given to Sellers
+        <span class="tab-count">({{ getReviewTabCount('seller-given') }})</span>
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeReviewTab === 'buyer-received'"
+        (click)="setActiveReviewTab('buyer-received')">
+        <i class="fas fa-shopping-bag"></i>
+        Received as Buyer
+        <span class="tab-count">({{ getReviewTabCount('buyer-received') }})</span>
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeReviewTab === 'buyer-given'"
+        (click)="setActiveReviewTab('buyer-given')">
+        <i class="fas fa-shopping-cart"></i>
+        Given to Buyers
+        <span class="tab-count">({{ getReviewTabCount('buyer-given') }})</span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Reviews Received as Seller -->
+      <div class="reviews-list" *ngIf="activeReviewTab === 'seller-received'">
+        <div class="review-card" *ngFor="let review of userProfile.sellerReviewsReceived">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <h4>{{ review.reviewerName }}</h4>
+              <div class="rating">
+                <i *ngFor="let star of getRatingStars(review.rating)" [class]="star"></i>
+                <span class="rating-number">{{ review.rating }}/5</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <img [src]="review.productImageUrl || '/assets/default-product.png'" [alt]="review.productName" class="product-thumb">
+              <div class="product-details">
+                <p class="product-name">{{ review.productName }}</p>
+                <p class="product-price">${{ review.productPrice | number:'1.2-2' }}</p>
+                <span class="product-category">{{ review.category }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-content">
+            <p class="review-text">{{ review.reviewText }}</p>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!userProfile.sellerReviewsReceived || userProfile.sellerReviewsReceived.length === 0">
+          <i class="fas fa-star"></i>
+          <p>No reviews received as seller yet.</p>
+        </div>
+      </div>
+
+      <!-- Reviews Given as Seller -->
+      <div class="reviews-list" *ngIf="activeReviewTab === 'seller-given'">
+        <div class="review-card" *ngFor="let review of userProfile.sellerReviewsGiven">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <h4>To: {{ review.sellerName }}</h4>
+              <div class="rating">
+                <i *ngFor="let star of getRatingStars(review.rating)" [class]="star"></i>
+                <span class="rating-number">{{ review.rating }}/5</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <img [src]="review.productImageUrl || '/assets/default-product.png'" [alt]="review.productName" class="product-thumb">
+              <div class="product-details">
+                <p class="product-name">{{ review.productName }}</p>
+                <p class="product-price">${{ review.productPrice | number:'1.2-2' }}</p>
+                <span class="product-category">{{ review.category }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-content">
+            <p class="review-text">{{ review.reviewText }}</p>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!userProfile.sellerReviewsGiven || userProfile.sellerReviewsGiven.length === 0">
+          <i class="fas fa-star-half-alt"></i>
+          <p>No reviews given as seller yet.</p>
+        </div>
+      </div>
+
+      <!-- Reviews Received as Buyer -->
+      <div class="reviews-list" *ngIf="activeReviewTab === 'buyer-received'">
+        <div class="review-card" *ngFor="let review of userProfile.buyerReviewsReceived">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <h4>{{ review.reviewerName }}</h4>
+              <div class="rating">
+                <i *ngFor="let star of getRatingStars(review.rating)" [class]="star"></i>
+                <span class="rating-number">{{ review.rating }}/5</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <img [src]="review.productImageUrl || '/assets/default-product.png'" [alt]="review.productName" class="product-thumb">
+              <div class="product-details">
+                <p class="product-name">{{ review.productName }}</p>
+                <p class="product-price">${{ review.productPrice | number:'1.2-2' }}</p>
+                <span class="product-category">{{ review.category }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-content">
+            <p class="review-text">{{ review.reviewText }}</p>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!userProfile.buyerReviewsReceived || userProfile.buyerReviewsReceived.length === 0">
+          <i class="fas fa-shopping-bag"></i>
+          <p>No reviews received as buyer yet.</p>
+        </div>
+      </div>
+
+      <!-- Reviews Given as Buyer -->
+      <div class="reviews-list" *ngIf="activeReviewTab === 'buyer-given'">
+        <div class="review-card" *ngFor="let review of userProfile.buyerReviewsGiven">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <h4>To: {{ review.buyerName }}</h4>
+              <div class="rating">
+                <i *ngFor="let star of getRatingStars(review.rating)" [class]="star"></i>
+                <span class="rating-number">{{ review.rating }}/5</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <img [src]="review.productImageUrl || '/assets/default-product.png'" [alt]="review.productName" class="product-thumb">
+              <div class="product-details">
+                <p class="product-name">{{ review.productName }}</p>
+                <p class="product-price">${{ review.productPrice | number:'1.2-2' }}</p>
+                <span class="product-category">{{ review.category }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-content">
+            <p class="review-text">{{ review.reviewText }}</p>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!userProfile.buyerReviewsGiven || userProfile.buyerReviewsGiven.length === 0">
+          <i class="fas fa-shopping-cart"></i>
+          <p>No reviews given as buyer yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Products Listed -->
+  <div class="profile-section" *ngIf="userProfile.productsListed && userProfile.productsListed.length > 0">
+    <div class="section-header">
+      <h2><i class="fas fa-boxes"></i> Recent Products Listed</h2>
+    </div>
+    <div class="products-grid">
+      <div class="product-card" *ngFor="let product of userProfile.productsListed.slice(0, 6)">
+        <img [src]="product.productImageUrl || '/assets/default-product.png'" [alt]="product.productName">
+        <div class="product-info">
+          <h4>{{ product.productName }}</h4>
+          <p class="price">${{ product.price | number:'1.2-2' }}</p>
+          <span class="category">{{ product.category }}</span>
+          <span class="condition">{{ product.condition }}</span>
+          <span class="status" [ngClass]="'status-' + product.status.toLowerCase()">{{ product.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Purchases -->
+  <div class="profile-section" *ngIf="userProfile.productsPurchased && userProfile.productsPurchased.length > 0">
+    <div class="section-header">
+      <h2><i class="fas fa-shopping-history"></i> Recent Purchases</h2>
+    </div>
+    <div class="products-grid">
+      <div class="product-card" *ngFor="let product of userProfile.productsPurchased.slice(0, 6)">
+        <img [src]="product.productImageUrl || '/assets/default-product.png'" [alt]="product.productName">
+        <div class="product-info">
+          <h4>{{ product.productName }}</h4>
+          <p class="price">${{ product.price | number:'1.2-2' }}</p>
+          <span class="category">{{ product.category }}</span>
+          <span class="condition">{{ product.condition }}</span>
+          <span class="status" [ngClass]="'status-' + product.status.toLowerCase()">{{ product.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+  </div>
+  <p>Loading user profile...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error && !loading">
+  <div class="error-icon">
+    <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <h3>Error Loading Profile</h3>
+  <p>{{ error }}</p>
+  <button class="btn btn-primary" (click)="loadUserProfile()">Try Again</button>
+  <button class="btn btn-secondary" (click)="goBack()">Go Back</button>
+</div>

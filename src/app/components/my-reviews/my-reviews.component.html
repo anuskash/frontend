@@ -1,0 +1,368 @@
+<div class="my-reviews-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h1>My Reviews</h1>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your reviews...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-message" *ngIf="errorMessage && !isLoading">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>{{ errorMessage }}</p>
+    <button class="retry-btn" (click)="loadMyReviews()">Try Again</button>
+  </div>
+
+  <!-- Reviews Content -->
+  <div class="reviews-content" *ngIf="!isLoading && !errorMessage && myReviews">
+    <!-- Summary Section -->
+    <div class="summary-section">
+      <div class="summary-card">
+        <h3>Review Summary</h3>
+        <div class="summary-stats">
+          <div class="stat">
+            <span class="stat-number">{{ myReviews.totalReviews }}</span>
+            <span class="stat-label">Total Reviews</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">{{ myReviews.averageSellerRatingReceived}}</span>
+            <span class="stat-label">Avg as Seller</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">{{ myReviews.averageBuyerRatingReceived }}</span>
+            <span class="stat-label">Avg as Buyer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'as-seller'"
+        (click)="switchTab('as-seller')">
+        Received as Seller ({{ getAsSellerReviews().length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'as-buyer'"
+        (click)="switchTab('as-buyer')">
+        Received as Buyer ({{ getAsBuyerReviews().length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'to-buyer'"
+        (click)="switchTab('to-buyer')">
+        Given to Buyers ({{ getToBuyerReviewsCount() }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'to-seller'"
+        (click)="switchTab('to-seller')">
+        Given to Sellers ({{ getToSellerReviewsCount() }})
+      </button>
+    </div>
+
+    <!-- As Seller Tab -->
+    <div class="reviews-list" *ngIf="activeTab === 'as-seller'">
+      <div class="empty-state" *ngIf="getAsSellerReviews().length === 0">
+        <i class="fas fa-star-o"></i>
+        <h3>No Reviews as Seller Yet</h3>
+        <p>Reviews you received when selling items will appear here.</p>
+      </div>
+      
+      <div class="review-card" *ngFor="let review of getAsSellerReviews()">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <h4>{{ review.reviewerName }}</h4>
+            <span class="review-id">Review #{{ review.reviewId }}</span>
+          </div>
+          <div class="rating">
+            <span 
+              class="star" 
+              *ngFor="let filled of getStarArray(review.rating)" 
+              [class.filled]="filled">
+              ★
+            </span>
+            <span class="rating-number">({{ review.rating }}/5)</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <p class="comment">{{ review.reviewText }}</p>
+          <div class="product-info">
+            <span class="product-label">Product:</span>
+            <span class="product-name">{{ review.productName }}</span>
+          </div>
+        </div>
+        <div class="review-actions">
+          <button 
+            class="action-btn secondary"
+            (click)="toggleProductDetails(review.reviewId)">
+            <i class="fas" [class.fa-eye]="!isProductExpanded(review.reviewId)" [class.fa-eye-slash]="isProductExpanded(review.reviewId)"></i>
+            {{ isProductExpanded(review.reviewId) ? 'Hide Product' : 'View Product' }}
+          </button>
+        </div>
+
+        <!-- Product Details Accordion -->
+        <div class="product-accordion" *ngIf="isProductExpanded(review.reviewId)">
+          <div class="product-details">
+            <div class="product-image" *ngIf="review.productImageUrl">
+              <img [src]="review.productImageUrl | imageUrl" [alt]="review.productName" />
+            </div>
+            <div class="product-info-detailed">
+              <h5>{{ review.productName }}</h5>
+              <div class="product-meta">
+                <div class="meta-item">
+                  <span class="label">Price:</span>
+                  <span class="value">{{ formatPrice(review.productPrice) }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Category:</span>
+                  <span class="value">{{ review.category }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Condition:</span>
+                  <span class="value">{{ review.condition }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- As Buyer Tab -->
+    <div class="reviews-list" *ngIf="activeTab === 'as-buyer'">
+      <div class="empty-state" *ngIf="getAsBuyerReviews().length === 0">
+        <i class="fas fa-star-o"></i>
+        <h3>No Reviews as Buyer Yet</h3>
+        <p>Reviews you received when buying items will appear here.</p>
+      </div>
+      
+      <div class="review-card" *ngFor="let review of getAsBuyerReviews()">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <h4>Review by {{ review.reviewerName }}</h4>
+            <span class="review-id">Review #{{ review.reviewId }}</span>
+          </div>
+          <div class="rating">
+            <span 
+              class="star" 
+              *ngFor="let filled of getStarArray(review.rating)" 
+              [class.filled]="filled">
+              ★
+            </span>
+            <span class="rating-number">({{ review.rating }}/5)</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <p class="comment">{{ review.reviewText }}</p>
+          <div class="product-info">
+            <span class="product-label">Product:</span>
+            <span class="product-name">{{ review.productName }}</span>
+          </div>
+        </div>
+        <div class="review-actions">
+          <button 
+            class="action-btn secondary"
+            (click)="toggleProductDetails(review.reviewId)">
+            <i class="fas" [class.fa-eye]="!isProductExpanded(review.reviewId)" [class.fa-eye-slash]="isProductExpanded(review.reviewId)"></i>
+            {{ isProductExpanded(review.reviewId) ? 'Hide Product' : 'View Product' }}
+          </button>
+          <!-- No edit button - these are reviews others gave to us when we bought items -->
+        </div>
+
+        <!-- Product Details Accordion -->
+        <div class="product-accordion" *ngIf="isProductExpanded(review.reviewId)">
+          <div class="product-details">
+            <div class="product-image" *ngIf="review.productImageUrl">
+              <img [src]="review.productImageUrl | imageUrl" [alt]="review.productName" />
+            </div>
+            <div class="product-info-detailed">
+              <h5>{{ review.productName }}</h5>
+              <div class="product-meta">
+                <div class="meta-item">
+                  <span class="label">Price:</span>
+                  <span class="value">{{ formatPrice(review.productPrice) }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Category:</span>
+                  <span class="value">{{ review.category }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Condition:</span>
+                  <span class="value">{{ review.condition }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- To Buyer Tab -->
+    <div class="reviews-list" *ngIf="activeTab === 'to-buyer'">
+      <div class="empty-state" *ngIf="getToBuyerReviews().length === 0">
+        <i class="fas fa-star-o"></i>
+        <h3>No Reviews to Buyers Yet</h3>
+        <p>Reviews you give to buyers after completing transactions will appear here.</p>
+      </div>
+      
+      <div class="review-card" *ngFor="let review of getToBuyerReviews()">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <h4>Review to {{ review.buyerName }}</h4>
+            <span class="review-id">Review #{{ review.reviewId }}</span>
+          </div>
+          <div class="rating">
+            <span 
+              class="star" 
+              *ngFor="let filled of getStarArray(review.rating)" 
+              [class.filled]="filled">
+              ★
+            </span>
+            <span class="rating-number">({{ review.rating }}/5)</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <p class="comment">{{ review.reviewText }}</p>
+          <div class="product-info">
+            <span class="product-label">Product:</span>
+            <span class="product-name">{{ review.productName }}</span>
+          </div>
+        </div>
+        <div class="review-actions">
+          <button 
+            class="action-btn secondary"
+            (click)="toggleProductDetails(review.reviewId)">
+            <i class="fas" [class.fa-eye]="!isProductExpanded(review.reviewId)" [class.fa-eye-slash]="isProductExpanded(review.reviewId)"></i>
+            {{ isProductExpanded(review.reviewId) ? 'Hide Product' : 'View Product' }}
+          </button>
+          <div class="edit-info">
+            <p class="edit-note">
+              <i class="fas fa-info-circle"></i>
+              To edit this review, go to <a (click)="goToMyListings()" class="edit-link">My Listings</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Product Details Accordion -->
+        <div class="product-accordion" *ngIf="isProductExpanded(review.reviewId)">
+          <div class="product-details">
+            <div class="product-image" *ngIf="review.productImageUrl">
+              <img [src]="review.productImageUrl | imageUrl" [alt]="review.productName" />
+            </div>
+            <div class="product-info-detailed">
+              <h5>{{ review.productName }}</h5>
+              <div class="product-meta">
+                <div class="meta-item">
+                  <span class="label">Price:</span>
+                  <span class="value">{{ formatPrice(review.productPrice) }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Category:</span>
+                  <span class="value">{{ review.category }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Condition:</span>
+                  <span class="value">{{ review.condition }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- To Seller Tab -->
+    <div class="reviews-list" *ngIf="activeTab === 'to-seller'">
+      <div class="empty-state" *ngIf="getToSellerReviews().length === 0">
+        <i class="fas fa-star-o"></i>
+        <h3>No Reviews to Sellers Yet</h3>
+        <p>Reviews you give to sellers after purchasing items will appear here.</p>
+      </div>
+      
+      <div class="review-card" *ngFor="let review of getToSellerReviews()">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <h4>Review to {{ review.sellerName }}</h4>
+            <span class="review-id">Review #{{ review.reviewId }}</span>
+          </div>
+          <div class="rating">
+            <span 
+              class="star" 
+              *ngFor="let filled of getStarArray(review.rating)" 
+              [class.filled]="filled">
+              ★
+            </span>
+            <span class="rating-number">({{ review.rating }}/5)</span>
+          </div>
+        </div>
+        <div class="review-content">
+          <p class="comment">{{ review.reviewText }}</p>
+          <div class="product-info">
+            <span class="product-label">Product:</span>
+            <span class="product-name">{{ review.productName }}</span>
+          </div>
+        </div>
+        <div class="review-actions">
+          <button 
+            class="action-btn secondary"
+            (click)="toggleProductDetails(review.reviewId)">
+            <i class="fas" [class.fa-eye]="!isProductExpanded(review.reviewId)" [class.fa-eye-slash]="isProductExpanded(review.reviewId)"></i>
+            {{ isProductExpanded(review.reviewId) ? 'Hide Product' : 'View Product' }}
+          </button>
+          <div class="edit-info">
+            <p class="edit-note">
+              <i class="fas fa-info-circle"></i>
+              To edit this review, go to <a (click)="goToMyPurchases()" class="edit-link">My Purchases</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Product Details Accordion -->
+        <div class="product-accordion" *ngIf="isProductExpanded(review.reviewId)">
+          <div class="product-details">
+            <div class="product-image" *ngIf="review.productImageUrl">
+              <img [src]="review.productImageUrl | imageUrl" [alt]="review.productName" />
+            </div>
+            <div class="product-info-detailed">
+              <h5>{{ review.productName }}</h5>
+              <div class="product-meta">
+                <div class="meta-item">
+                  <span class="label">Price:</span>
+                  <span class="value">{{ formatPrice(review.productPrice) }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Category:</span>
+                  <span class="value">{{ review.category }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="label">Condition:</span>
+                  <span class="value">{{ review.condition }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- No Reviews State -->
+  <div class="no-reviews-state" *ngIf="!isLoading && !errorMessage && (!myReviews || (myReviews.sellerReviews.length === 0 && myReviews.buyerReviews.length === 0))">
+    <i class="fas fa-star-o"></i>
+    <h2>No Reviews Yet</h2>
+    <p>Start buying and selling to build your reputation!</p>
+    <button class="action-btn" (click)="goBack()">
+      Go to Dashboard
+    </button>
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -1,0 +1,39 @@
+.hero-banner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  padding: 50px 20px 30px;
+  position: relative;
+  overflow: hidden;
+
+  .hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-content {
+    text-align: center;
+
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #78350f;
+      margin: 0 0 8px 0;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      color: #92400e;
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-banner {
+    padding: 40px 20px 24px;
+
+    .hero-content .hero-title {
+      font-size: 1.75rem;
+    }
+  }
+}

@@ -1,0 +1,168 @@
+<div class="reports-panel">
+  <div class="header">
+    <h2 class="title"><i class="fas fa-clipboard-check"></i> Product Reports</h2>
+    <p class="subtitle">Review and moderate user-reported products</p>
+  </div>
+
+  <div class="filters">
+    <div class="filter-row">
+      <input 
+        type="text" 
+        placeholder="Search by product, reporter, reason, or ID..." 
+        class="filter-input search" 
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()" />
+      
+      <select class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilterChange()">
+        <option value="all">All Reports</option>
+        <option value="pending">Pending Review</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+
+      <button class="btn-primary" type="button" (click)="loadReports()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="results-info" *ngIf="!loading && !error">
+    <span>Showing {{ filteredReports.length }} of {{ reports.length }} reports</span>
+  </div>
+
+  <div *ngIf="loading" class="empty-state">
+    <i class="fas fa-spinner fa-spin"></i> Loading reports...
+  </div>
+  
+  <div *ngIf="error && !loading" class="empty-state error">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    <button class="retry-btn" (click)="loadReports()">Retry</button>
+  </div>
+
+  <div class="reports-container" *ngIf="!loading && !error">
+    <div class="report-header">
+      <div class="col-id">ID</div>
+      <div class="col-product">Product</div>
+      <div class="col-reporter">Reporter</div>
+      <div class="col-reason">Reason</div>
+      <div class="col-date">Reported</div>
+      <div class="col-status">Status</div>
+      <div class="col-actions">Actions</div>
+    </div>
+
+    <div class="report-rows">
+      <div class="report-row" *ngFor="let report of filteredReports">
+        <div class="col-id">#{{ report.reportId }}</div>
+        <div class="col-product">
+          <div class="product-info">
+            <strong>{{ (report.productName || 'Product #' + report.productId) }}</strong>
+            <span class="product-id">ID: {{ report.productId }}</span>
+          </div>
+        </div>
+        <div class="col-reporter">
+          <div class="reporter-info">
+            <span class="reporter-id">User #{{ report.reporterUserId }}</span>
+            <span class="reporter-email">{{ report.reporterEmail || 'Email Pending' }}</span>
+          </div>
+        </div>
+        <div class="col-reason">
+          <div class="reason-text">{{ report.reportReason }}</div>
+          <div class="details-text" *ngIf="report.reportDetails">{{ report.reportDetails }}</div>
+        </div>
+        <div class="col-date">{{ getReportDate(report) }}</div>
+        <div class="col-status">
+          <span class="badge" [ngClass]="getStatusBadgeClass(report.status)">
+            {{ report.status | titlecase }}
+          </span>
+        </div>
+        <div class="col-actions">
+          <button 
+            class="btn-action primary" 
+            (click)="openReviewModal(report)"
+            *ngIf="report.status === 'pending'">
+            <i class="fas fa-gavel"></i> Review
+          </button>
+          <span class="reviewed-label" *ngIf="report.status !== 'pending'">
+            <i class="fas fa-check-circle"></i> Reviewed
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filteredReports.length === 0" class="empty-state">
+      <i class="fas fa-inbox"></i> 
+      <p>No reports found</p>
+      <p class="hint">{{ statusFilter === 'pending' ? 'No pending reports at this time' : 'Try adjusting your filters' }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal-dialog large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-gavel"></i> Review Report #{{ selectedReport?.reportId }}</h3>
+      <button class="close-btn" (click)="closeReviewModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body" *ngIf="selectedReport">
+      <div class="report-details">
+        <div class="detail-section">
+          <h4><i class="fas fa-box"></i> Product Information</h4>
+          <p><strong>Product ID:</strong> {{ selectedReport.productId }}</p>
+          <p><strong>Product Name:</strong> {{ selectedReport.productName || ('Product #' + selectedReport.productId) }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4><i class="fas fa-user"></i> Reporter Information</h4>
+          <p><strong>User ID:</strong> {{ selectedReport.reporterUserId }}</p>
+          <p><strong>Email:</strong> {{ selectedReport.reporterEmail || 'Lookup pending' }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4><i class="fas fa-flag"></i> Report Details</h4>
+          <p><strong>Reason:</strong> {{ selectedReport.reportReason }}</p>
+          <p *ngIf="selectedReport.reportDetails"><strong>Additional Details:</strong> {{ selectedReport.reportDetails }}</p>
+          <p><strong>Reported:</strong> {{ getReportDate(selectedReport) }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4><i class="fas fa-clipboard-check"></i> Admin Action</h4>
+          <div class="form-group">
+            <label>Action to Take *</label>
+            <select [(ngModel)]="reviewAction" class="form-control">
+              <option value="approved">Approve Report - Flag Product</option>
+              <option value="rejected">Reject Report - Keep Product Active</option>
+              <option value="remove_product">Remove Product Entirely</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Notes (Optional)</label>
+            <textarea 
+              [(ngModel)]="adminNotes" 
+              class="form-control"
+              rows="3"
+              placeholder="Internal notes about this decision..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" (click)="closeReviewModal()">Cancel</button>
+        <button 
+          type="button" 
+          class="btn danger" 
+          (click)="submitReview()"
+          [disabled]="submittingReview">
+          <i class="fas" 
+             [class.fa-check]="!submittingReview" 
+             [class.fa-spinner]="submittingReview"
+             [class.fa-spin]="submittingReview"></i>
+          {{ submittingReview ? 'Processing...' : getActionLabel(reviewAction) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

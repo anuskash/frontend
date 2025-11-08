@@ -1,0 +1,521 @@
+<div class="my-listings-container container">
+  <app-hero-banner
+    [title]="'My Listings'"
+    [subtitle]="'Manage, filter, and track your items'"
+  ></app-hero-banner>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && myListings.length === 0" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading your listings...</p>
+  </div>
+
+  <!-- Main Content -->
+  <main class="listings-main" *ngIf="!isLoading || myListings.length > 0">
+    <div class="listings-layout">
+      <app-sidebar-filters
+        [categories]="categories"
+        [conditions]="conditions"
+        [showStatus]="true"
+        (filtersChange)="onFiltersChange($event)"
+        title="Filter Listings"
+      ></app-sidebar-filters>
+
+      <div class="listings-content">
+    <!-- Messages -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <div class="tabs">
+        <button 
+          class="tab"
+          [class.active]="activeTab === 'active'"
+          (click)="switchTab('active')"
+        >
+          <i class="fas fa-check-circle"></i>
+          Active
+          <span class="count" *ngIf="activeListingsCount > 0">({{ activeListingsCount }})</span>
+        </button>
+        <button 
+          class="tab"
+          [class.active]="activeTab === 'sold'"
+          (click)="switchTab('sold')"
+        >
+          <i class="fas fa-handshake"></i>
+          Sold
+          <span class="count" *ngIf="soldListingsCount > 0">({{ soldListingsCount }})</span>
+        </button>
+        <button 
+          class="tab"
+          [class.active]="activeTab === 'archived'"
+          (click)="switchTab('archived')"
+        >
+          <i class="fas fa-archive"></i>
+          Archived
+          <span class="count" *ngIf="archivedListingsCount > 0">({{ archivedListingsCount }})</span>
+        </button>
+      </div>
+      <button class="btn btn-primary" (click)="createNewListing()">
+        <i class="fas fa-plus"></i> Create New Listing
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredListings.length === 0 && myListings.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <h2>No listings yet</h2>
+      <p>Start selling by creating your first listing</p>
+      <button class="btn btn-primary" (click)="createNewListing()">
+        <i class="fas fa-plus"></i> Create Your First Listing
+      </button>
+    </div>
+
+    <!-- Tab Empty State -->
+    <div *ngIf="!isLoading && filteredListings.length === 0 && myListings.length > 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas" 
+           [class]="activeTab === 'active' ? 'fa-check-circle' : 
+                   activeTab === 'sold' ? 'fa-handshake' : 'fa-archive'"></i>
+      </div>
+      <h2>No {{ activeTab }} listings</h2>
+      <p *ngIf="activeTab === 'active'">All your listings are either sold or archived</p>
+      <p *ngIf="activeTab === 'sold'">You haven't sold any items yet</p>
+      <p *ngIf="activeTab === 'archived'">You don't have any archived items</p>
+    </div>
+
+    <!-- Listings Grid -->
+    <div *ngIf="filteredListings.length > 0" class="listings-grid">
+      <div class="listing-card" *ngFor="let product of filteredListings">
+        <!-- Product Image with Carousel -->
+        <div class="card-image" (click)="openProductDetail(product)" style="cursor: pointer;">
+          <img 
+            [src]="(getCurrentImage(product) | imageUrl) || 'https://via.placeholder.com/300x200/f39c12/ffffff?text=No+Image'" 
+            [alt]="product.productDescription"
+          />
+          
+          <!-- Image Navigation Arrows -->
+          <div *ngIf="hasMultipleImages(product)" class="image-nav">
+            <button class="nav-btn prev" (click)="previousImage(product, $event)" aria-label="Previous image">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="nav-btn next" (click)="nextImage(product, $event)" aria-label="Next image">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          
+          <!-- Image Indicator (1/3, 2/3, etc.) -->
+          <div *ngIf="hasMultipleImages(product)" class="image-indicator">
+            {{ getImageIndicator(product) }}
+          </div>
+          
+          <div class="status-badge" [class]="getProductStatusClass(product.status)">
+            <i class="fas" [class]="getProductStatusIcon(product.status)"></i>
+            {{ product.status | titlecase }}
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <div class="card-content" (click)="openProductDetail(product)" style="cursor: pointer;">
+          <h3 class="product-title">{{ product.productName }}</h3>
+          <p class="product-description">{{ product.productDescription }}</p>
+
+          <div class="product-details">
+            <div class="detail-item">
+              <i class="fas fa-tag"></i>
+              <span class="price">{{ formatPrice(product.price) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="product.category">
+              <i class="fas fa-folder"></i>
+              <span>{{ product.category }}</span>
+            </div>
+            <div class="detail-item" *ngIf="product.condition">
+              <i class="fas fa-info-circle"></i>
+              <span>{{ product.condition | titlecase }}</span>
+            </div>
+            <div class="detail-item" *ngIf="product.postedDate">
+              <i class="fas fa-calendar"></i>
+              <span>Posted {{ product.postedDate | date:'short' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buyer Information for Sold Products -->
+        <div *ngIf="activeTab === 'sold' && product.buyerName" class="buyer-info">
+          <div class="detail-item">
+            <i class="fas fa-user"></i>
+            <span><strong>Sold to:</strong> {{ product.buyerName }}</span>
+          </div>
+        </div>
+
+        <!-- Card Actions - Active tab -->
+        <div class="card-actions" *ngIf="activeTab === 'active'">
+          <button class="btn btn-secondary" (click)="editProduct(product.productId!)" title="Edit Listing">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button 
+            class="btn btn-success" 
+            (click)="markAsSold(product.productId!)"
+            title="Mark as Sold"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-handshake"></i> Sold
+          </button>
+          <button 
+            class="btn btn-secondary" 
+            (click)="markAsArchived(product.productId!)"
+            title="Archive Listing"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-archive"></i> Archive
+          </button>
+          <button 
+            class="btn btn-danger" 
+            (click)="deleteProduct(product.productId!)"
+            title="Delete Listing"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+
+        <!-- Card Actions - Archived tab -->
+        <div class="card-actions" *ngIf="activeTab === 'archived'">
+          <button class="btn btn-secondary" (click)="editProduct(product.productId!)" title="Edit Listing">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button 
+            class="btn btn-success" 
+            (click)="markAsAvailable(product.productId!)"
+            title="Mark as Available"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-play-circle"></i> Available
+          </button>
+          <button 
+            class="btn btn-danger" 
+            (click)="deleteProduct(product.productId!)"
+            title="Delete Listing"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+
+        <!-- Reviews Section - Only show on Sold tab -->
+        <div class="product-reviews" *ngIf="activeTab === 'sold'">
+          <div *ngIf="loadingReviews[product.productId]" class="loading-reviews">
+            <i class="fas fa-spinner fa-spin"></i> Loading reviews...
+          </div>
+          
+          <div *ngIf="!loadingReviews[product.productId] && productReviews[product.productId]" class="reviews-container">
+            <!-- Your Review of the Buyer -->
+            <div class="review-section">
+              <h4><i class="fas fa-star"></i> Your review of the buyer</h4>
+              <div *ngIf="getBuyerReviewByCurrentUser(product.productId); let buyerReview" class="review-item">
+                <div class="review-header">
+                  <div class="review-rating">
+                    <span *ngFor="let star of getStarArray(buyerReview.rating)" 
+                          class="fa fa-star" 
+                          [class.filled]="star">
+                    </span>
+                    <span class="rating-text">({{ buyerReview.rating }}/5)</span>
+                  </div>
+                  <button class="btn secondary small edit-review-btn" 
+                          (click)="openEditBuyerReviewModal(buyerReview, product)"
+                          title="Edit Review">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                </div>
+                <p class="review-text">{{ buyerReview.reviewText }}</p>
+              </div>
+              
+              <!-- Add Review Button if no review exists -->
+              <button *ngIf="canAddBuyerReview(product)" 
+                      class="btn primary add-review-btn" 
+                      (click)="openAddBuyerReviewModal(product)">
+                <i class="fas fa-plus"></i> Add Review for Buyer
+              </button>
+              
+              <div *ngIf="!canAddBuyerReview(product) && !getBuyerReviewByCurrentUser(product.productId)" class="no-review">
+                No buyer information available
+              </div>
+            </div>
+
+            <!-- Buyer's Review of You -->
+            <div class="review-section">
+              <h4><i class="fas fa-thumbs-up"></i> Buyer's review of you</h4>
+              <div *ngIf="getSellerReviewForCurrentUser(product.productId); let sellerReview" class="review-item">
+                <div class="review-rating">
+                  <span *ngFor="let star of getStarArray(sellerReview.rating)" 
+                        class="fa fa-star" 
+                        [class.filled]="star">
+                  </span>
+                  <span class="rating-text">({{ sellerReview.rating }}/5)</span>
+                </div>
+                <p class="review-text">{{ sellerReview.reviewText }}</p>
+              </div>
+              
+              <div *ngIf="!getSellerReviewForCurrentUser(product.productId)" class="no-review">
+                The buyer hasn't reviewed you yet
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mark as Sold Modal -->
+  <div class="modal-overlay" *ngIf="showSoldModal" (click)="closeSoldModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-handshake"></i> Mark as Sold</h2>
+        <button class="close-btn" (click)="closeSoldModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p>Who did you sell this item to?</p>
+        
+        <div class="buyer-selection">
+          <div 
+            class="buyer-option" 
+            *ngFor="let user of allUsers"
+            [class.selected]="selectedBuyer?.userId === user.userId"
+            (click)="selectedBuyer = user"
+          >
+            <div class="buyer-avatar">
+              <span>{{ getUserInitials(user) }}</span>
+            </div>
+            <div class="buyer-info">
+              <h4>{{ getUserDisplayName(user) }}</h4>
+              <p>{{ user.email }}</p>
+            </div>
+            <div class="selection-indicator" *ngIf="selectedBuyer?.userId === user.userId">
+              <i class="fas fa-check-circle"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Product Detail Modal -->
+<app-product-detail-modal
+  [product]="selectedProductForDetail"
+  [show]="showProductDetailModal"
+  (closeModal)="closeProductDetail()"
+></app-product-detail-modal>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeSoldModal()">Cancel</button>
+        <button 
+          class="btn btn-primary" 
+          (click)="confirmMarkAsSold()" 
+          [disabled]="!selectedBuyer || isLoading"
+        >
+          <span *ngIf="!isLoading">Confirm Sale</span>
+          <span *ngIf="isLoading">Processing...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buyer Review Modal -->
+  <div class="modal-overlay" *ngIf="showReviewModal">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-star"></i> Rate the Buyer - Required</h2>
+        <button class="close-btn" (click)="closeReviewModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p>Please rate your experience with <strong>{{ selectedBuyer?.firstName }} {{ selectedBuyer?.lastName }}</strong>. This helps other sellers in our marketplace.</p>
+        
+        <div class="rating-section">
+          <label>Rating: *</label>
+          <div class="star-rating">
+            <span 
+              *ngFor="let star of [1,2,3,4,5]" 
+              class="star"
+              [class.filled]="star <= buyerReview.rating"
+              (click)="buyerReview.rating = star"
+            >
+              <i class="fas fa-star"></i>
+            </span>
+          </div>
+        </div>
+        
+        <div class="comment-section">
+          <label for="reviewComment">Comment: *</label>
+          <textarea 
+            id="reviewComment"
+            [(ngModel)]="buyerReview.comment"
+            placeholder="Please share your experience with this buyer (required)..."
+            rows="4"
+            required
+          ></textarea>
+          <div class="validation-message" *ngIf="!buyerReview.comment || buyerReview.comment.trim().length < 10">
+            <i class="fas fa-exclamation-triangle"></i>
+            Comment must be at least 10 characters long.
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          class="btn primary" 
+          (click)="submitBuyerReview()"
+          [disabled]="!isReviewValid()"
+        >
+          Submit Review
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Buyer Review Modal -->
+  <div class="modal-overlay" *ngIf="showAddBuyerReviewModal" (click)="closeAddBuyerReviewModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-star"></i> Rate the Buyer</h2>
+        <button class="close-btn" (click)="closeAddBuyerReviewModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div *ngIf="selectedProduct" class="product-summary">
+          <h3>Product: {{ selectedProduct.productName }}</h3>
+          <p><strong>Buyer:</strong> {{ selectedProduct.buyerName }}</p>
+          <p>Please rate your experience with this buyer.</p>
+        </div>
+        
+        <div class="rating-section">
+          <label>Rating: *</label>
+          <div class="star-rating">
+            <span 
+              *ngFor="let star of [1,2,3,4,5]; let i = index"
+              class="fa fa-star rating-star"
+              [class.filled]="i < buyerReview.rating"
+              (click)="buyerReview.rating = i + 1"
+              (mouseenter)="hoverRating = i + 1"
+              (mouseleave)="hoverRating = 0"
+              [class.hover]="hoverRating > 0 && i < hoverRating"
+            ></span>
+            <span class="rating-value">{{ buyerReview.rating }}/5</span>
+          </div>
+        </div>
+        
+        <div class="comment-section">
+          <label for="newBuyerReviewComment">Comment: *</label>
+          <textarea 
+            id="newBuyerReviewComment"
+            [(ngModel)]="buyerReview.comment"
+            placeholder="Please share your experience with this buyer (required)..."
+            rows="4"
+            required
+          ></textarea>
+          <div class="validation-message" *ngIf="!buyerReview.comment || buyerReview.comment.trim().length < 10">
+            <i class="fas fa-exclamation-triangle"></i>
+            Comment must be at least 10 characters long.
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeAddBuyerReviewModal()">Cancel</button>
+        <button 
+          class="btn btn-primary" 
+          (click)="submitNewBuyerReview()"
+          [disabled]="!isReviewValid()"
+        >
+          Submit Review
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Buyer Review Modal -->
+  <div class="modal-overlay" *ngIf="showEditBuyerReviewModal" (click)="closeEditBuyerReviewModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-edit"></i> Edit Buyer Review</h2>
+        <button class="close-btn" (click)="closeEditBuyerReviewModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body" [class.loading]="isEditingReview">
+        <!-- Loading overlay for edit operation -->
+        <div *ngIf="isEditingReview" class="modal-loading-overlay">
+          <div class="loading-content">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Updating your review...</p>
+          </div>
+        </div>
+
+        <div *ngIf="selectedProduct && editingBuyerReview" class="product-summary">
+          <h3>Product: {{ selectedProduct.productName }}</h3>
+          <p><strong>Buyer:</strong> {{ selectedProduct.buyerName }}</p>
+          <p>Update your review for this buyer.</p>
+        </div>
+        
+        <div class="rating-section">
+          <label>Rating: *</label>
+          <div class="star-rating">
+            <span 
+              *ngFor="let star of [1,2,3,4,5]; let i = index"
+              class="fa fa-star rating-star"
+              [class.filled]="i < editBuyerReview.rating"
+              (click)="editBuyerReview.rating = i + 1"
+            ></span>
+            <span class="rating-value">{{ editBuyerReview.rating }}/5</span>
+          </div>
+        </div>
+        
+        <div class="comment-section">
+          <label for="editBuyerReviewComment">Comment: *</label>
+          <textarea 
+            id="editBuyerReviewComment"
+            [(ngModel)]="editBuyerReview.comment"
+            placeholder="Please share your experience with this buyer (required)..."
+            rows="4"
+            required
+          ></textarea>
+          <div class="validation-message" *ngIf="!editBuyerReview.comment || editBuyerReview.comment.trim().length < 10">
+            <i class="fas fa-exclamation-triangle"></i>
+            Comment must be at least 10 characters long.
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" 
+                (click)="closeEditBuyerReviewModal()"
+                [disabled]="isEditingReview">
+          Cancel
+        </button>
+        <button 
+          class="btn btn-primary" 
+          (click)="submitEditBuyerReview()"
+          [disabled]="!isEditReviewValid() || isEditingReview"
+        >
+          <i *ngIf="isEditingReview" class="fas fa-spinner fa-spin"></i>
+          <span>{{ isEditingReview ? 'Updating...' : 'Update Review' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

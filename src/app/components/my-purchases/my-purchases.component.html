@@ -1,0 +1,235 @@
+<div class="my-purchases">
+  <app-hero-banner
+    [title]="'My Purchases'"
+    [subtitle]="'Items you have purchased and their reviews'"
+  ></app-hero-banner>
+
+  <div class="purchases-content listings-layout">
+    <app-sidebar-filters
+      [categories]="categories"
+      [conditions]="conditions"
+      (filtersChange)="onFiltersChange($event)"
+      title="Filter Purchases"
+    ></app-sidebar-filters>
+
+    <div class="listings-content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+      <p>Loading your purchases...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="error-state">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-btn" (click)="loadMyPurchases()">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && myPurchases.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <h3>No purchases yet</h3>
+      <p>You haven't purchased any items from other students yet.</p>
+      <button class="browse-btn" (click)="goToBrowseListings()">
+        <i class="fas fa-search"></i>
+        Browse Available Items
+      </button>
+    </div>
+
+    <!-- Purchases List -->
+    <div *ngIf="!isLoading && !errorMessage && filteredPurchases.length > 0" class="purchases-list">
+      <div class="purchase-card" *ngFor="let product of filteredPurchases">
+        <div class="product-image">
+          <img 
+            [src]="((product.productImages?.[0] || product.productImageUrl) | imageUrl) 
+                      || 'https://via.placeholder.com/150x150/f39c12/ffffff?text=No+Image'" 
+            [alt]="product.productName">
+          <div class="status-badge" [class]="product.status.toLowerCase()">
+            {{ product.status | titlecase }}
+          </div>
+        </div>
+        
+        <div class="product-details">
+          <div class="product-header">
+            <h3 class="product-name">{{ product.productName }}</h3>
+            <span class="product-price">{{ formatPrice(product.price) }}</span>
+          </div>
+          
+          <div class="product-meta">
+            <span class="category" *ngIf="product.category">
+              <i class="fas fa-tag"></i>
+              {{ product.category }}
+            </span>
+            <span class="condition" *ngIf="product.condition">
+              <i class="fas fa-star"></i>
+              {{ product.condition }}
+            </span>
+            <span class="purchase-date">
+              <i class="fas fa-calendar"></i>
+              Purchased: {{ formatDate(product.postedDate) }}
+            </span>
+          </div>
+          
+          <p class="product-description" *ngIf="product.productDescription">
+            {{ product.productDescription }}
+          </p>
+          
+          <div class="seller-info">
+            <span class="seller-name">
+              <i class="fas fa-user"></i>
+              Seller: {{ product.sellerName }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="review-section">
+          <div class="review-header">
+            <h4>Your Review</h4>
+          </div>
+          
+          <!-- No Seller Review Yet -->
+          <div *ngIf="canAddSellerReview(product.productId)" class="no-review">
+            <p>You haven't reviewed the seller yet.</p>
+            <button class="add-review-btn" (click)="openReviewModal(product)">
+              <i class="fas fa-plus"></i>
+              Add Seller Review
+            </button>
+          </div>
+          
+          <!-- Existing Seller Review -->
+          <div *ngIf="!canAddSellerReview(product.productId)" class="existing-review">
+            <div class="review-content">
+              <div class="review-rating">
+                <div class="stars">
+                  <i *ngFor="let star of getFilledStars(getSellerReviewByCurrentUser(product.productId)?.rating || 0)" 
+                     class="fas fa-star filled"></i>
+                  <i *ngFor="let star of getEmptyStars(getSellerReviewByCurrentUser(product.productId)?.rating || 0)" 
+                     class="fas fa-star"></i>
+                </div>
+                <span class="rating-text">{{ getSellerReviewByCurrentUser(product.productId)?.rating }}/5</span>
+              </div>
+              <p class="review-text">{{ getSellerReviewByCurrentUser(product.productId)?.reviewText }}</p>
+            </div>
+            <button class="edit-review-btn" (click)="openReviewModal(product, getSellerReviewByCurrentUser(product.productId))">
+              <i class="fas fa-edit"></i>
+              Edit Seller Review
+            </button>
+          </div>
+          
+          <!-- Buyer Review from Seller (Read-only) -->
+          <div *ngIf="getBuyerReviewForCurrentUser(product.productId)" class="buyer-review-section">
+            <h5>Seller's Review of You:</h5>
+            <div class="review-content readonly">
+              <div class="review-rating">
+                <div class="stars">
+                  <i *ngFor="let star of getFilledStars(getBuyerReviewForCurrentUser(product.productId)?.rating || 0)" 
+                     class="fas fa-star filled"></i>
+                  <i *ngFor="let star of getEmptyStars(getBuyerReviewForCurrentUser(product.productId)?.rating || 0)" 
+                     class="fas fa-star"></i>
+                </div>
+                <span class="rating-text">{{ getBuyerReviewForCurrentUser(product.productId)?.rating }}/5</span>
+              </div>
+              <p class="review-text">{{ getBuyerReviewForCurrentUser(product.productId)?.reviewText }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
+
+<!-- Review Modal -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Edit' : 'Add' }} Seller Review</h3>
+      <button class="close-btn" (click)="closeReviewModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="product-info" *ngIf="selectedProduct">
+        <h4>{{ selectedProduct.productName }}</h4>
+        <p>Rate your experience with seller: <strong>{{ selectedProduct.sellerName }}</strong></p>
+      </div>
+      
+      <div class="rating-section">
+        <label>Rating:</label>
+        <div class="star-rating">
+          <button 
+            *ngFor="let star of [1,2,3,4,5]" 
+            class="star-btn"
+            [class.active]="star <= reviewRating"
+            (click)="setRating(star)"
+            type="button">
+            <i class="fas fa-star"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="review-text-section">
+        <label for="reviewText">Review:</label>
+        <textarea 
+          id="reviewText"
+          [(ngModel)]="reviewText" 
+          placeholder="Share your experience with this purchase..."
+          class="review-textarea"
+          rows="4">
+        </textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="secondary-btn" (click)="closeReviewModal()" [disabled]="isSubmittingReview">
+        Cancel
+      </button>
+      <button 
+        class="primary-btn" 
+        (click)="submitReview()" 
+        [disabled]="reviewRating === 0 || isSubmittingReview">
+        <i class="fas fa-spinner fa-spin" *ngIf="isSubmittingReview"></i>
+        <i class="fas fa-check" *ngIf="!isSubmittingReview"></i>
+        {{ isSubmittingReview ? 'Saving...' : (isEditMode ? 'Update Review' : 'Submit Review') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="closeErrorModal()">
+  <div class="modal-content error-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ errorModalTitle }}</h3>
+      <button class="close-btn" (click)="closeErrorModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="error-content">
+        <div class="error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <p>{{ errorModalMessage }}</p>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="primary-btn" (click)="closeErrorModal()">
+        <i class="fas fa-check"></i>
+        OK
+      </button>
+    </div>
+  </div>
+</div>

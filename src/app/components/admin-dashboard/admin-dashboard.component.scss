@@ -1,0 +1,349 @@
+.admin-dashboard {
+  padding: 2rem;
+  background: #f1f5f9;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #64748b;
+
+  i {
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &.users {
+    border-left-color: #3b82f6;
+    
+    .stat-icon {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+  }
+
+  &.listings {
+    border-left-color: #10b981;
+    
+    .stat-icon {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+  }
+
+  &.reports {
+    border-left-color: #f59e0b;
+    
+    .stat-icon {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+  }
+
+  &.keywords {
+    border-left-color: #8b5cf6;
+    
+    .stat-icon {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    }
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .stat-content {
+    flex: 1;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .stat-details {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    .detail-item {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 500;
+
+      &.active {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      &.banned {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      &.pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      &.flagged {
+        background: #fed7aa;
+        color: #9a3412;
+      }
+    }
+  }
+}
+
+.quick-actions {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .action-btn {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 1.5rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(243, 156, 18, 0.4);
+    }
+  }
+}
+
+.recent-activity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.activity-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f1f5f9;
+    }
+
+    .activity-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .activity-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .activity-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-subtitle {
+      font-size: 0.75rem;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      white-space: nowrap;
+
+      &.badge-active {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      &.badge-banned {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      &.badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      &.badge-success {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      &.badge-warning {
+        background: #fed7aa;
+        color: #9a3412;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-activity {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,128 @@
+<aside class="sidebar-filters">
+  <div class="filters-card">
+    <h3 class="filters-title">Refine Results</h3>
+
+    <!-- Search Section -->
+    <div class="filter-section">
+      <label class="section-label">SEARCH</label>
+      <div class="search-input-wrapper">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          [(ngModel)]="search" 
+          (input)="emit()" 
+          placeholder="I'm looking for..." 
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <!-- Category Section -->
+    <div class="filter-section">
+      <label class="section-label">CATEGORY</label>
+      <div class="select-wrapper">
+        <select [(ngModel)]="category" (change)="emit()" class="filter-select">
+          <option value="">All Categories</option>
+          <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+        </select>
+        <svg class="select-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+          <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Advanced Filters Collapsible -->
+    <details class="advanced-section" open>
+      <summary class="advanced-toggle">
+        <svg class="toggle-icon" width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 6h6M6 3v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        ADVANCED FILTERS
+      </summary>
+
+      <div class="advanced-content">
+        <!-- Condition -->
+        <div class="filter-section">
+          <label class="section-label">CONDITION</label>
+          <div class="select-wrapper">
+            <select [(ngModel)]="condition" (change)="emit()" class="filter-select">
+              <option value="">All Conditions</option>
+              <option *ngFor="let c of conditions" [value]="c">{{ c }}</option>
+            </select>
+            <svg class="select-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-section">
+          <label class="section-label">MIN PRICE</label>
+          <div class="price-input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="number" 
+              [(ngModel)]="minPrice" 
+              (input)="emit()" 
+              placeholder="0" 
+              class="price-input"
+            />
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <label class="section-label">MAX PRICE</label>
+          <div class="price-input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="number" 
+              [(ngModel)]="maxPrice" 
+              (input)="emit()" 
+              placeholder="Any" 
+              class="price-input"
+            />
+          </div>
+        </div>
+
+        <!-- Status (conditional) -->
+        <div class="filter-section" *ngIf="showStatus">
+          <label class="section-label">STATUS</label>
+          <div class="select-wrapper">
+            <select [(ngModel)]="status" (change)="emit()" class="filter-select">
+              <option value="">All</option>
+              <option value="available">Available</option>
+              <option value="sold">Sold</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+            <svg class="select-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Sort By Section -->
+    <div class="filter-section">
+      <label class="section-label">SORT BY</label>
+      <div class="select-wrapper">
+        <select [(ngModel)]="sortBy" (change)="emit()" class="filter-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="name">Name: A to Z</option>
+        </select>
+        <svg class="select-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+          <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Clear All Button -->
+    <button class="clear-all-btn" (click)="clear()">CLEAR ALL</button>
+  </div>
+</aside>

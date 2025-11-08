@@ -1,0 +1,107 @@
+<div class="audit-panel">
+  <div class="header">
+    <h2 class="title"><i class="fas fa-clipboard-list"></i> Audit Log</h2>
+    <p class="subtitle">Track all administrative actions and system events</p>
+  </div>
+
+  <form class="filters" [formGroup]="filterForm">
+    <div class="filter-row">
+      <input 
+        type="text" 
+        placeholder="Search in details or target ID..." 
+        class="filter-input search" 
+        formControlName="searchText" />
+      
+      <select class="filter-select" formControlName="action">
+        <option value="">All Actions</option>
+        <option *ngFor="let action of availableActions" [value]="action">{{ action }}</option>
+      </select>
+
+      <select class="filter-select" formControlName="targetType">
+        <option value="">All Target Types</option>
+        <option *ngFor="let type of availableTargetTypes" [value]="type">{{ type }}</option>
+      </select>
+
+      <input 
+        type="number" 
+        placeholder="User ID..." 
+        class="filter-input" 
+        formControlName="userId" />
+    </div>
+
+    <div class="filter-row">
+      <div class="date-group">
+        <label>From:</label>
+        <input type="date" class="filter-input" formControlName="dateFrom" />
+      </div>
+      
+      <div class="date-group">
+        <label>To:</label>
+        <input type="date" class="filter-input" formControlName="dateTo" />
+      </div>
+
+      <button class="btn-secondary" type="button" (click)="clearFilters()">
+        <i class="fas fa-times"></i> Clear Filters
+      </button>
+
+      <button class="btn" type="button" (click)="applyFilters()">
+        <i class="fas fa-search"></i> Search
+      </button>
+
+      <button class="btn" type="button" (click)="loadAuditLogs()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+
+      <button class="btn-primary" type="button" (click)="exportLogs()" [disabled]="filteredLogs.length === 0">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
+    </div>
+  </form>
+
+  <div class="results-info" *ngIf="!loading && !error">
+    <span>Showing {{ filteredLogs.length }} of {{ allLogs.length }} logs</span>
+  </div>
+
+  <div *ngIf="loading" class="empty-state">
+    <i class="fas fa-spinner fa-spin"></i> Loading audit logs...
+  </div>
+  
+  <div *ngIf="error && !loading" class="empty-state error">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    <button class="retry-btn" (click)="loadAuditLogs()">Retry</button>
+  </div>
+
+  <div class="logs-container" *ngIf="!loading && !error">
+    <div class="log-header">
+      <div class="col-id">ID</div>
+      <div class="col-timestamp">Timestamp</div>
+      <div class="col-user">User ID</div>
+      <div class="col-action">Action</div>
+      <div class="col-target-type">Target Type</div>
+      <div class="col-target-id">Target ID</div>
+      <div class="col-details">Details</div>
+    </div>
+
+    <div class="log-rows">
+      <div class="log-row" *ngFor="let log of filteredLogs">
+        <div class="col-id">#{{ log.id }}</div>
+        <div class="col-timestamp">{{ log.timestamp | date: 'short' }}</div>
+        <div class="col-user">{{ log.userId }}</div>
+        <div class="col-action">
+          <span class="badge action-badge">{{ log.action }}</span>
+        </div>
+        <div class="col-target-type">
+          <span class="badge type-badge">{{ log.targetType }}</span>
+        </div>
+        <div class="col-target-id">{{ log.targetId }}</div>
+        <div class="col-details">{{ log.details || '-' }}</div>
+      </div>
+    </div>
+
+    <div *ngIf="filteredLogs.length === 0" class="empty-state">
+      <i class="fas fa-inbox"></i> 
+      <p>No audit entries found</p>
+      <p class="hint">Try adjusting your filters</p>
+    </div>
+  </div>
+</div>

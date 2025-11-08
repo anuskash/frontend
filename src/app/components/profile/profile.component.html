@@ -1,0 +1,253 @@
+<div class="profile-container container">
+  <!-- Header -->
+  <header class="profile-header">
+    <div class="header-content">
+      <button class="back-btn btn btn-secondary" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Back to {{ getDashboardName() }}
+      </button>
+      <h1>{{ getProfileTitle() }}</h1>
+  <button class="logout-btn btn btn-danger" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && !userProfile" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <main class="profile-main" *ngIf="!isLoading || userProfile">
+    <!-- Messages -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="profile-layout">
+      <!-- Left Column: Main Profile Content -->
+      <div class="profile-left">
+        <!-- Profile Picture Section -->
+  <section class="profile-picture-section card elevate" style="padding: 16px;">
+          <div class="picture-container">
+            <div class="profile-picture-initials">
+              <span>{{ getUserInitials() }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- User Info Section -->
+        <section class="user-info-section">
+          <div class="info-card card">
+            <div class="card-header">
+              <h2>Profile Information</h2>
+              <button 
+                class="btn btn-secondary" 
+                (click)="toggleEditProfile()"
+                *ngIf="!isEditingProfile"
+              >
+                <i class="fas fa-edit"></i> Edit Profile
+              </button>
+            </div>
+
+        <!-- View Mode -->
+        <div class="profile-view" *ngIf="!isEditingProfile && userProfile">
+          <div class="info-row">
+            <label>
+              <i class="fas fa-envelope"></i> Email:
+            </label>
+            <span>{{ currentUser?.email }}</span>
+          </div>
+          <div class="info-row">
+            <label>
+              <i class="fas fa-user"></i> First Name:
+            </label>
+            <span>{{ userProfile.firstName }}</span>
+          </div>
+          <div class="info-row">
+            <label>
+              <i class="fas fa-user"></i> Last Name:
+            </label>
+            <span>{{ userProfile.lastName }}</span>
+          </div>
+          <div class="info-row">
+            <label>
+              <i class="fas fa-phone"></i> Phone Number:
+            </label>
+            <span>{{ userProfile.phoneNumber || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <label>
+              <i class="fas fa-info-circle"></i> Status:
+            </label>
+            <span class="status" [class]="currentUser?.status">
+              <i class="fas" 
+                 [class.fa-check-circle]="currentUser?.status === 'active'"
+                 [class.fa-ban]="currentUser?.status === 'banned'"
+                 [class.fa-pause-circle]="currentUser?.status === 'inactive'"
+                 [class.fa-clock]="currentUser?.status === 'pending'">
+              </i>
+              {{ currentUser?.status | titlecase }}
+            </span>
+          </div>
+          <div class="info-row">
+            <label>
+              <i class="fas fa-calendar-alt"></i> Member Since:
+            </label>
+            <span>{{ currentUser?.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Edit Mode -->
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" *ngIf="isEditingProfile" class="profile-form">
+          <div class="form-group">
+            <label for="firstName">
+              <i class="fas fa-user"></i> First Name *
+            </label>
+            <input 
+              id="firstName"
+              type="text" 
+              formControlName="firstName"
+              class="form-control"
+              [class.error]="firstName?.invalid && firstName?.touched"
+            />
+            <div class="error-message" *ngIf="firstName?.invalid && firstName?.touched">
+              <span *ngIf="firstName?.errors?.['required']">First name is required</span>
+              <span *ngIf="firstName?.errors?.['minlength']">First name must be at least 2 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">
+              <i class="fas fa-user"></i> Last Name *
+            </label>
+            <input 
+              id="lastName"
+              type="text" 
+              formControlName="lastName"
+              class="form-control"
+              [class.error]="lastName?.invalid && lastName?.touched"
+            />
+            <div class="error-message" *ngIf="lastName?.invalid && lastName?.touched">
+              <span *ngIf="lastName?.errors?.['required']">Last name is required</span>
+              <span *ngIf="lastName?.errors?.['minlength']">Last name must be at least 2 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber">
+              <i class="fas fa-phone"></i> Phone Number
+            </label>
+            <input 
+              id="phoneNumber"
+              type="tel" 
+              formControlName="phoneNumber"
+              placeholder="e.g., +61 123 456 789"
+              class="form-control"
+              [class.error]="phoneNumber?.invalid && phoneNumber?.touched"
+            />
+            <div class="error-message" *ngIf="phoneNumber?.invalid && phoneNumber?.touched">
+              <span *ngIf="phoneNumber?.errors?.['pattern']">Please enter a valid phone number</span>
+            </div>
+          </div>
+
+            <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid || isLoading">
+              <span *ngIf="!isLoading">Save Changes</span>
+              <span *ngIf="isLoading">Saving...</span>
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="toggleEditProfile()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+      </div>
+
+      <!-- Right Column: Security Section -->
+      <div class="profile-right">
+        <section class="password-section">
+          <div class="info-card card">
+            <div class="card-header">
+              <h2>Security</h2>
+              <button 
+                class="btn btn-secondary" 
+                (click)="toggleChangePassword()"
+                *ngIf="!isChangingPassword"
+              >
+                <i class="fas fa-lock"></i> Change Password
+              </button>
+            </div>
+
+            <div *ngIf="!isChangingPassword" class="security-info">
+              <p>Keep your account secure by updating your password regularly.</p>
+              <div class="security-stats">
+                <div class="stat-item">
+                  <i class="fas fa-shield-alt"></i>
+                  <span>Account Protected</span>
+                </div>
+                <div class="stat-item">
+                  <i class="fas fa-clock"></i>
+                  <span>Last updated: {{ (currentUser?.createdAt | date:'shortDate') || 'Never' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" *ngIf="isChangingPassword" class="password-form">
+              <div class="form-group">
+                <label for="newPassword">
+                  <i class="fas fa-key"></i> New Password *
+                </label>
+                <input 
+                  id="newPassword"
+                  type="password" 
+                  formControlName="newPassword"
+                  placeholder="Enter new password"
+                  class="form-control"
+                  [class.error]="newPassword?.invalid && newPassword?.touched"
+                />
+                <div class="error-message" *ngIf="newPassword?.invalid && newPassword?.touched">
+                  <span *ngIf="newPassword?.errors?.['required']">Password is required</span>
+                  <span *ngIf="newPassword?.errors?.['minlength']">Password must be at least 8 characters</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword">
+                  <i class="fas fa-check-circle"></i> Confirm Password *
+                </label>
+                <input 
+                  id="confirmPassword"
+                  type="password" 
+                  formControlName="confirmPassword"
+                  placeholder="Confirm new password"
+                  class="form-control"
+                  [class.error]="confirmPassword?.invalid && confirmPassword?.touched"
+                />
+                <div class="error-message" *ngIf="confirmPassword?.invalid && confirmPassword?.touched">
+                  <span *ngIf="confirmPassword?.errors?.['required']">Please confirm your password</span>
+                </div>
+                <div class="error-message" *ngIf="passwordForm.errors?.['passwordMismatch'] && confirmPassword?.touched">
+                  Passwords do not match
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || isLoading">
+                  <span *ngIf="!isLoading">Update Password</span>
+                  <span *ngIf="isLoading">Updating...</span>
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="toggleChangePassword()">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>

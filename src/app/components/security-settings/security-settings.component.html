@@ -1,0 +1,234 @@
+<div class="security-settings-container">
+  <div class="security-settings-card">
+    <div class="header">
+      <button class="back-button" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Back to Profile
+      </button>
+      <h1><i class="fas fa-shield-alt"></i> Security Settings</h1>
+      <p class="subtitle">Manage your account security and authentication</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="alert alert-success" *ngIf="success">
+      <i class="fas fa-check-circle"></i> {{ success }}
+    </div>
+    <div class="alert alert-error" *ngIf="error && !showDisable2FAModal && !showRegenerateModal">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+
+    <!-- Password Management Section -->
+    <div class="security-section">
+      <div class="section-header">
+        <i class="fas fa-key"></i>
+        <h2>Password Management</h2>
+      </div>
+      <div class="section-content">
+        <p class="section-description">
+          Change your password securely via email verification link.
+        </p>
+        <button 
+          class="action-button primary" 
+          (click)="requestPasswordReset()"
+          [disabled]="sendingPasswordReset">
+          <i class="fas fa-envelope"></i>
+          <span *ngIf="!sendingPasswordReset">Send Password Reset Link</span>
+          <span *ngIf="sendingPasswordReset">Sending...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Two-Factor Authentication Section -->
+    <div class="security-section">
+      <div class="section-header">
+        <i class="fas fa-mobile-alt"></i>
+        <h2>Two-Factor Authentication (2FA)</h2>
+      </div>
+      <div class="section-content">
+        <div class="status-indicator" *ngIf="!checking2FAStatus">
+          <span class="status-badge" [class.enabled]="twoFactorEnabled" [class.disabled]="!twoFactorEnabled">
+            <i class="fas" [class.fa-check-circle]="twoFactorEnabled" [class.fa-times-circle]="!twoFactorEnabled"></i>
+            {{ twoFactorEnabled ? 'Enabled' : 'Disabled' }}
+          </span>
+        </div>
+        <div class="status-indicator" *ngIf="checking2FAStatus">
+          <span class="status-badge checking">
+            <i class="fas fa-spinner fa-spin"></i> Checking...
+          </span>
+        </div>
+
+        <p class="section-description" *ngIf="!twoFactorEnabled">
+          Add an extra layer of security to your account by enabling two-factor authentication.
+        </p>
+        <p class="section-description" *ngIf="twoFactorEnabled">
+          Your account is protected with two-factor authentication. You can disable it or regenerate backup codes below.
+        </p>
+
+        <div class="action-buttons">
+          <button 
+            class="action-button success" 
+            (click)="enable2FA()"
+            *ngIf="!twoFactorEnabled && !checking2FAStatus">
+            <i class="fas fa-lock"></i> Enable 2FA
+          </button>
+
+          <button 
+            class="action-button danger" 
+            (click)="openDisable2FAModal()"
+            *ngIf="twoFactorEnabled && !checking2FAStatus">
+            <i class="fas fa-unlock"></i> Disable 2FA
+          </button>
+
+          <button 
+            class="action-button secondary" 
+            (click)="openRegenerateModal()"
+            *ngIf="twoFactorEnabled && !checking2FAStatus">
+            <i class="fas fa-sync-alt"></i> Regenerate Backup Codes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Tips Section -->
+    <div class="security-section tips">
+      <div class="section-header">
+        <i class="fas fa-lightbulb"></i>
+        <h2>Security Tips</h2>
+      </div>
+      <div class="section-content">
+        <ul class="tips-list">
+          <li><i class="fas fa-check"></i> Use a strong, unique password for your account</li>
+          <li><i class="fas fa-check"></i> Enable two-factor authentication for maximum security</li>
+          <li><i class="fas fa-check"></i> Keep your backup codes in a safe, offline location</li>
+          <li><i class="fas fa-check"></i> Never share your password or 2FA codes with anyone</li>
+          <li><i class="fas fa-check"></i> Regularly review your account activity</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Disable 2FA Modal -->
+<div class="modal-overlay" *ngIf="showDisable2FAModal" (click)="closeDisable2FAModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-exclamation-triangle"></i> Disable Two-Factor Authentication</h2>
+      <button class="close-button" (click)="closeDisable2FAModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>Disabling 2FA will make your account less secure. Please enter your password to confirm.</p>
+      </div>
+
+      <div class="alert alert-error" *ngIf="error">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+
+      <div class="form-group">
+        <label for="disablePassword">
+          <i class="fas fa-lock"></i> Password
+        </label>
+        <input
+          type="password"
+          id="disablePassword"
+          [(ngModel)]="disablePassword"
+          placeholder="Enter your password"
+          class="form-control"
+          (keyup.enter)="disable2FA()"
+          [disabled]="disabling2FA">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDisable2FAModal()" [disabled]="disabling2FA">
+        Cancel
+      </button>
+      <button class="btn-danger" (click)="disable2FA()" [disabled]="disabling2FA">
+        <span *ngIf="!disabling2FA">Disable 2FA</span>
+        <span *ngIf="disabling2FA"><i class="fas fa-spinner fa-spin"></i> Disabling...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Regenerate Backup Codes Modal -->
+<div class="modal-overlay" *ngIf="showRegenerateModal" (click)="closeRegenerateModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-sync-alt"></i> Regenerate Backup Codes</h2>
+      <button class="close-button" (click)="closeRegenerateModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="newBackupCodes.length === 0">
+        <div class="info-message">
+          <i class="fas fa-info-circle"></i>
+          <p>Enter your current 2FA verification code to generate new backup codes. Your previous backup codes will no longer work.</p>
+        </div>
+
+        <div class="alert alert-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <div class="form-group">
+          <label for="regenerateCode">
+            <i class="fas fa-mobile-alt"></i> 2FA Verification Code
+          </label>
+          <input
+            type="text"
+            id="regenerateCode"
+            [(ngModel)]="regenerateVerificationCode"
+            placeholder="Enter 6-digit code"
+            class="form-control code-input"
+            maxlength="6"
+            (keyup.enter)="regenerateBackupCodes()"
+            [disabled]="regenerating">
+        </div>
+      </div>
+
+      <div *ngIf="newBackupCodes.length > 0" class="backup-codes-display">
+        <div class="success-header">
+          <i class="fas fa-check-circle"></i>
+          <h3>New Backup Codes Generated!</h3>
+          <p>Save these codes in a secure location. Each code can only be used once.</p>
+        </div>
+
+        <div class="codes-grid">
+          <div class="code-item" *ngFor="let code of newBackupCodes; let i = index">
+            <span class="code-number">{{ i + 1 }}.</span>
+            <span class="code-value">{{ code }}</span>
+          </div>
+        </div>
+
+        <div class="backup-actions">
+          <button class="action-btn" (click)="downloadBackupCodes()">
+            <i class="fas fa-download"></i> Download Codes
+          </button>
+          <button class="action-btn" (click)="copyBackupCodes()">
+            <i class="fas fa-copy"></i> Copy to Clipboard
+          </button>
+        </div>
+
+        <div class="warning-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p><strong>Important:</strong> Your previous backup codes are now invalid. Make sure to save these new codes!</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeRegenerateModal()" *ngIf="newBackupCodes.length === 0" [disabled]="regenerating">
+        Cancel
+      </button>
+      <button class="btn-primary" (click)="regenerateBackupCodes()" *ngIf="newBackupCodes.length === 0" [disabled]="regenerating">
+        <span *ngIf="!regenerating">Generate New Codes</span>
+        <span *ngIf="regenerating"><i class="fas fa-spinner fa-spin"></i> Generating...</span>
+      </button>
+      <button class="btn-primary" (click)="closeRegenerateModal()" *ngIf="newBackupCodes.length > 0">
+        Done
+      </button>
+    </div>
+  </div>
+</div>
+

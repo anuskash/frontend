@@ -1,0 +1,106 @@
+<div class="modal-overlay" *ngIf="isVisible" (click)="onOverlayClick($event)">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-user-plus"></i> Add New Admin</h2>
+      <button class="close-btn" (click)="onCancel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="adminForm" (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="form-section">
+        <h3><i class="fas fa-user"></i> Account Information</h3>
+        
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            placeholder="admin@uon.edu.au"
+            [class.error]="adminForm.get('email')?.invalid && adminForm.get('email')?.touched">
+          <div class="error-message" *ngIf="adminForm.get('email')?.invalid && adminForm.get('email')?.touched">
+            <span *ngIf="adminForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="adminForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password <span class="required">*</span></label>
+          <input 
+            type="password" 
+            id="password" 
+            formControlName="password"
+            placeholder="Enter secure password"
+            [class.error]="adminForm.get('password')?.invalid && adminForm.get('password')?.touched">
+          <div class="error-message" *ngIf="adminForm.get('password')?.invalid && adminForm.get('password')?.touched">
+            <span *ngIf="adminForm.get('password')?.errors?.['required']">Password is required</span>
+            <span *ngIf="adminForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3><i class="fas fa-id-card"></i> Personal Information</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="firstName" 
+              formControlName="firstName"
+              placeholder="John"
+              [class.error]="adminForm.get('firstName')?.invalid && adminForm.get('firstName')?.touched">
+            <div class="error-message" *ngIf="adminForm.get('firstName')?.invalid && adminForm.get('firstName')?.touched">
+              <span *ngIf="adminForm.get('firstName')?.errors?.['required']">First name is required</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="lastName" 
+              formControlName="lastName"
+              placeholder="Doe"
+              [class.error]="adminForm.get('lastName')?.invalid && adminForm.get('lastName')?.touched">
+            <div class="error-message" *ngIf="adminForm.get('lastName')?.invalid && adminForm.get('lastName')?.touched">
+              <span *ngIf="adminForm.get('lastName')?.errors?.['required']">Last name is required</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input 
+            type="tel" 
+            id="phoneNumber" 
+            formControlName="phoneNumber"
+            placeholder="+61 4XX XXX XXX">
+        </div>
+
+        <div class="form-group">
+          <label for="profileImageUrl">Profile Image URL</label>
+          <input 
+            type="url" 
+            id="profileImageUrl" 
+            formControlName="profileImageUrl"
+            placeholder="https://example.com/image.jpg">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="loading">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="adminForm.invalid || loading">
+          <i class="fas fa-spinner fa-spin" *ngIf="loading"></i>
+          <i class="fas fa-user-plus" *ngIf="!loading"></i>
+          {{ loading ? 'Creating Admin...' : 'Create Admin' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

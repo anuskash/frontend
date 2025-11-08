@@ -1,0 +1,20 @@
+<div class="modal-overlay" *ngIf="isVisible" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <div class="modal-content">
+      <div class="icon-container">
+        <i [class]="data.icon" [style.color]="data.iconColor"></i>
+      </div>
+      
+      <h2 class="modal-title">{{ data.title }}</h2>
+      
+      <p class="modal-message">{{ data.message }}</p>
+      
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="onClose()">
+        {{ data.buttonText }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,117 @@
+<div class="modal-backdrop" *ngIf="show && product" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <!-- Close Button -->
+    <button class="close-btn" (click)="close()" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-content">
+      <!-- Image Gallery Section -->
+      <div class="image-section">
+        <div class="image-carousel">
+          <img 
+            [src]="(currentImage | imageUrl) || 'https://via.placeholder.com/600x400/f39c12/ffffff?text=No+Image'" 
+            [alt]="product.productName"
+            class="main-image"
+          />
+          
+          <!-- Navigation Arrows -->
+          <button 
+            *ngIf="images.length > 1"
+            class="nav-btn prev" 
+            (click)="prevImage()" 
+            [disabled]="currentImageIndex === 0"
+            aria-label="Previous image"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button 
+            *ngIf="images.length > 1"
+            class="nav-btn next" 
+            (click)="nextImage()" 
+            [disabled]="currentImageIndex === images.length - 1"
+            aria-label="Next image"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <!-- Image Indicators -->
+          <div class="image-indicators" *ngIf="images.length > 1">
+            <button 
+              *ngFor="let img of images; let i = index"
+              class="indicator"
+              [class.active]="i === currentImageIndex"
+              (click)="goToImage(i)"
+              [attr.aria-label]="'Go to image ' + (i + 1)"
+            ></button>
+          </div>
+
+          <!-- Image Counter -->
+          <div class="image-counter" *ngIf="images.length > 1">
+            {{ currentImageIndex + 1 }} / {{ images.length }}
+          </div>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div class="thumbnails" *ngIf="images.length > 1">
+          <button 
+            *ngFor="let img of images; let i = index"
+            class="thumbnail"
+            [class.active]="i === currentImageIndex"
+            (click)="goToImage(i)"
+          >
+            <img [src]="img | imageUrl" [alt]="'Thumbnail ' + (i + 1)" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Info Section -->
+      <div class="info-section">
+        <div class="product-header">
+          <h2>{{ product.productName }}</h2>
+          <div class="price">{{ formatPrice(product.price) }}</div>
+        </div>
+
+        <div class="product-meta">
+          <div class="meta-item">
+            <i class="fas fa-tag"></i>
+            <span><strong>Category:</strong> {{ product.category }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-info-circle"></i>
+            <span><strong>Condition:</strong> {{ product.condition }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-check-circle"></i>
+            <span><strong>Status:</strong> {{ product.status | titlecase }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-user"></i>
+            <span><strong>Seller:</strong> {{ product.sellerName }}</span>
+          </div>
+          <div class="meta-item" *ngIf="product.postedDate">
+            <i class="fas fa-calendar"></i>
+            <span><strong>Posted:</strong> {{ formatDate(product.postedDate) }}</span>
+          </div>
+          <div class="meta-item" *ngIf="product.buyerName">
+            <i class="fas fa-handshake"></i>
+            <span><strong>Sold to:</strong> {{ product.buyerName }}</span>
+          </div>
+        </div>
+
+        <div class="product-description">
+          <h3>Description</h3>
+          <p>{{ product.productDescription || 'No description provided.' }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button class="primary" (click)="viewMore()">
+            <i class="fas fa-external-link-alt"></i>
+            View more
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

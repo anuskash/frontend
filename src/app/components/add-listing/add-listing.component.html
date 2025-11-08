@@ -1,0 +1,194 @@
+<div class="add-listing-container">
+  <!-- Header -->
+  <header class="listings-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="onCancel()">
+        <i class="fas fa-arrow-left"></i> Back to My Listings
+      </button>
+      <h1>{{ isEditMode ? 'Edit Listing' : 'Add New Listing' }}</h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="listings-main">
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <i class="fas fa-exclamation-triangle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="addListingForm" (ngSubmit)="onSubmit()" class="add-listing-form">
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step" [class.active]="currentStep === 1">1. Title</div>
+        <div class="step" [class.active]="currentStep === 2">2. Category</div>
+        <div class="step" [class.active]="currentStep === 3">3. Details</div>
+      </div>
+
+      <!-- Step 1: Title -->
+      <section *ngIf="currentStep === 1">
+        <div class="form-group">
+          <label for="productName">
+            <i class="fas fa-tag"></i>
+            Product Name *
+          </label>
+          <input
+            type="text"
+            id="productName"
+            formControlName="productName"
+            placeholder="e.g., 27 inch 4K Monitor with stand"
+            [class.invalid]="isFieldInvalidAtStep('productName', 1)"
+          />
+          <div *ngIf="isFieldInvalidAtStep('productName', 1)" class="error-message">
+            {{ getFieldError('productName') }}
+          </div>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn secondary" (click)="onCancel()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="button" class="btn primary" (click)="goNext()">Next</button>
+        </div>
+      </section>
+
+      <!-- Step 2: Category/Condition -->
+      <section *ngIf="currentStep === 2">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="category">
+              <i class="fas fa-layer-group"></i>
+              Category *
+            </label>
+            <select
+              id="category"
+              formControlName="category"
+              [class.invalid]="isFieldInvalidAtStep('category', 2)"
+            >
+              <option value="">Select category</option>
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+            <div *ngIf="isFieldInvalidAtStep('category', 2)" class="error-message">
+              {{ getFieldError('category') }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="condition">
+              <i class="fas fa-check-circle"></i>
+              Condition *
+            </label>
+            <select
+              id="condition"
+              formControlName="condition"
+              [class.invalid]="isFieldInvalidAtStep('condition', 2)"
+            >
+              <option value="">Select condition</option>
+              <option *ngFor="let condition of conditions" [value]="condition">
+                {{ condition }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalidAtStep('condition', 2)" class="error-message">
+              {{ getFieldError('condition') }}
+            </div>
+          </div>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn secondary" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button type="button" class="btn primary" (click)="goNext()">Next</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Details & Photos -->
+      <section *ngIf="currentStep === 3">
+        <div class="form-grid">
+          <div class="col">
+            <div class="form-group">
+              <label for="productDescription">
+                <i class="fas fa-align-left"></i>
+                Description *
+              </label>
+              <textarea
+                id="productDescription"
+                formControlName="productDescription"
+                rows="5"
+                placeholder="Describe the item condition, what's included, pickup details, etc."
+                [class.invalid]="isFieldInvalidAtStep('productDescription', 3)"
+              ></textarea>
+              <div *ngIf="isFieldInvalidAtStep('productDescription', 3)" class="error-message">
+                {{ getFieldError('productDescription') }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="price">
+                <i class="fas fa-dollar-sign"></i>
+                Price *
+              </label>
+              <input id="price" type="number" formControlName="price" min="0" step="0.01" [class.invalid]="isFieldInvalidAtStep('price', 3)" />
+              <div class="field-hint">
+                <i class="fas fa-info-circle"></i>
+                Enter a fair price in AUD.
+              </div>
+              <div class="error-message" *ngIf="isFieldInvalidAtStep('price', 3)">{{ getFieldError('price') }}</div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Photos</label>
+              <div class="upload-controls">
+                <input id="single" type="file" accept="image/*" (change)="onSingleSelected($event)" />
+                <input id="multiple" type="file" accept="image/*" multiple (change)="onMultipleSelected($event)" />
+                <button type="button" (click)="multipleEnabled = !multipleEnabled">
+                  {{ multipleEnabled ? 'Disable' : 'Enable' }} multiple
+                </button>
+              </div>
+              <div class="dropzone" [class.dragover]="isDragOver" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+                <p>Drag & drop images here, or use the file picker.</p>
+                <small>Accepted: JPG, PNG, WEBP. Size ≤ 5MB. Dimensions 300x300 to 4000x4000.</small>
+              </div>
+              <div class="validation error" *ngIf="validationError">{{ validationError }}</div>
+              <div class="previews" *ngIf="previews.length">
+                <div class="thumb" *ngFor="let p of previews; let i = index" [class.primary]="i === primaryIndex">
+                  <img [src]="p.url" alt="preview" />
+                  <div class="thumb-actions">
+                    <button type="button" (click)="setPrimary(i)" [disabled]="i === primaryIndex">Primary</button>
+                    <button type="button" (click)="remove(i)">Remove</button>
+                  </div>
+                  <div class="progress" *ngIf="p.progress !== undefined">
+                    <div class="bar" [style.width.%]="p.progress"></div>
+                  </div>
+                  <div class="error" *ngIf="p.error">{{ p.error }}</div>
+                </div>
+              </div>
+              <div class="optional-url" style="margin-top:12px;">
+                <label for="imageUrl">Or provide an image URL</label>
+                <input id="imageUrl" type="url" formControlName="productImageUrl" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn secondary" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button type="submit" class="btn primary" [disabled]="addListingForm.invalid || isSubmitting">
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+            <i class="fas fa-plus" *ngIf="!isSubmitting && !isEditMode"></i>
+            <i class="fas fa-save" *ngIf="!isSubmitting && isEditMode"></i>
+            {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Listing' : 'Create Listing') }}
+          </button>
+        </div>
+      </section>
+
+    </form>
+  </main>
+</div>

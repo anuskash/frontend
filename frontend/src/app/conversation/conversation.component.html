@@ -1,0 +1,45 @@
+<div class="conversation-container">
+  <div class="conversation-header">
+    <button (click)="goBack()" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <div class="header-info">
+      <h3>{{ otherUserName }}</h3>
+      <p>{{ productTitle }}</p>
+    </div>
+  </div>
+
+  <div class="messages-container" #messagesContainer>
+    <div *ngIf="loading" class="loading">Loading messages...</div>
+    
+    <div 
+      *ngFor="let msg of messages" 
+      class="message"
+      [class.sent]="msg.senderId === currentUserId"
+      [class.received]="msg.senderId !== currentUserId">
+      
+      <div class="message-bubble">
+        <div class="message-sender">{{ msg.senderName }}</div>
+        <div class="message-content">{{ msg.content }}</div>
+        <div class="message-time">
+          {{ msg.sentAt | date:'short' }}
+          <span *ngIf="msg.senderId === currentUserId && msg.isRead" class="read-indicator">
+            ✓✓ Read
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="message-input">
+    <textarea 
+      [(ngModel)]="newMessage"
+      (keydown)="onKeyPress($event)"
+      placeholder="Type a message... (Press Enter to send)"
+      rows="2">
+    </textarea>
+    <button (click)="sendMessage()" class="btn-send" [disabled]="!newMessage.trim()">
+      <i class="bi bi-send"></i> Send
+    </button>
+  </div>
+</div>

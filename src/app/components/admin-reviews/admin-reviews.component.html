@@ -1,0 +1,102 @@
+<div class="moderation-panel">
+  <div class="header">
+    <h2 class="title">Reviews Moderation</h2>
+    <p class="subtitle">Moderate user reviews</p>
+  </div>
+
+  <form class="actions-bar" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <input type="text" placeholder="Search reviews (text, product, user, flag reason)..." class="search-input" formControlName="q" />
+    <select class="filter-select" formControlName="type">
+      <option value="">All Types</option>
+      <option value="seller">Seller Reviews</option>
+      <option value="buyer">Buyer Reviews</option>
+    </select>
+    <label class="flagged-only">
+      <input type="checkbox" formControlName="flaggedOnly" /> Flagged only
+    </label>
+    <label class="flagged-only">
+      <input type="checkbox" formControlName="hiddenOnly" /> Hidden only
+    </label>
+    <input type="number" class="rating-input" placeholder="Min rating" formControlName="minRating" />
+    <input type="number" class="rating-input" placeholder="Max rating" formControlName="maxRating" />
+    <button type="button" class="btn-action" (click)="loadAll()">Refresh</button>
+  </form>
+
+  <div *ngIf="loading" class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+  <div *ngIf="error" class="empty-state error">{{ error }}</div>
+
+  <div *ngIf="!loading && !error">
+    <div *ngIf="filtered.length === 0" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <p>No reviews match the filters.</p>
+    </div>
+
+    <div class="reviews-table" *ngIf="filtered.length > 0">
+      <div class="table-header">
+        <div class="col-user">Reviewer → Target</div>
+        <div class="col-product">Product</div>
+        <div class="col-rating">Rating</div>
+        <div class="col-state">State</div>
+        <div class="col-flags">Flags</div>
+        <div class="col-actions">Actions</div>
+      </div>
+      <div class="table-row" *ngFor="let r of filtered">
+        <div class="col-user">
+          <div class="headline">{{ r.reviewerName }} → {{ r.targetName }}</div>
+          <div class="ids" *ngIf="r.reviewerId || r.targetUserId">
+            <small>ID: {{ r.reviewerId || '?' }} → {{ r.targetUserId || '?' }}</small>
+          </div>
+        </div>
+        <div class="col-product">
+          <div class="product-wrapper">
+            <div class="thumb" *ngIf="r.productImageUrl">
+              <img [src]="r.productImageUrl | imageUrl" alt="prod" onerror="this.src='assets/placeholder.png'" />
+            </div>
+            <div class="pinfo">
+              <div class="name">{{ r.productName }}</div>
+              <div class="meta">${{ r.productPrice }} · {{ r.category }} · {{ r.condition }}</div>
+              <div class="pid" *ngIf="r.productId"><small>Product #{{ r.productId }}</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-rating">
+          <span class="badge badge-rating">{{ r.rating }}</span>
+        </div>
+        <div class="col-state">
+          <span class="badge" [ngClass]="{'badge-flagged': r.flagged, 'badge-hidden': r.hidden}">
+            {{ r.hidden ? 'Hidden' : (r.flagged ? 'Flagged' : 'Visible') }}
+          </span>
+        </div>
+        <div class="col-flags">
+          <div *ngIf="r.flagReason; else noFlagReason">
+            <small class="flag-reason">{{ r.flagReason }}</small>
+          </div>
+          <ng-template #noFlagReason>
+            <small class="flag-reason none">—</small>
+          </ng-template>
+        </div>
+        <div class="col-actions actions">
+          <button class="btn small warn" (click)="flag(r)" *ngIf="!r.flagged">Flag</button>
+          <button class="btn small" (click)="hide(r)" *ngIf="!r.hidden">Hide</button>
+          <button class="btn small" (click)="unhide(r)" *ngIf="r.hidden">Unhide</button>
+          <button class="btn small danger" (click)="remove(r)">Delete</button>
+        </div>
+      </div>
+    </div>
+    <aside class="violations" *ngIf="showStats && reviews.length > 0">
+      <h3><i class="fas fa-exclamation-triangle"></i> Violation Summary</h3>
+      <div *ngIf="(violationCounts | keyvalue).length === 0" class="empty">
+        <small>No flagged or hidden reviews yet.</small>
+      </div>
+      <ul *ngIf="(violationCounts | keyvalue).length > 0">
+        <li *ngFor="let kv of (violationCounts | keyvalue)">
+          <span class="user-ref">User {{ kv.key.split(':')[0] }} ({{ kv.key.split(':')[1] }})</span>
+          <span class="count">{{ kv.value }} issue(s)</span>
+        </li>
+      </ul>
+      <div class="legend">
+        <small>Escalate users with repeated violations. Consider temporary bans after threshold (e.g. 3).</small>
+      </div>
+    </aside>
+  </div>
+</div>

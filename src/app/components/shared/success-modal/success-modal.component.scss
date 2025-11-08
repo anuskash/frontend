@@ -1,0 +1,150 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+.modal-content {
+  padding: 40px 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  .icon-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(56, 161, 105, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    i {
+      font-size: 40px;
+    }
+  }
+
+  .modal-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a202c;
+  }
+
+  .modal-message {
+    margin: 0;
+    color: #4a5568;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 120px;
+
+    &.btn-primary {
+      background-color: #667eea;
+      color: white;
+
+      &:hover {
+        background-color: #5a67d8;
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+// Different icon container colors based on success type
+.modal-content {
+  &.success-green .icon-container {
+    background-color: rgba(56, 161, 105, 0.1);
+  }
+
+  &.success-red .icon-container {
+    background-color: rgba(229, 62, 62, 0.1);
+  }
+
+  &.success-orange .icon-container {
+    background-color: rgba(214, 158, 46, 0.1);
+  }
+
+  &.success-blue .icon-container {
+    background-color: rgba(102, 126, 234, 0.1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-container {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .modal-content {
+    padding: 30px 20px;
+
+    .icon-container {
+      width: 60px;
+      height: 60px;
+
+      i {
+        font-size: 30px;
+      }
+    }
+
+    .modal-title {
+      font-size: 20px;
+    }
+
+    .modal-message {
+      font-size: 14px;
+    }
+  }
+}

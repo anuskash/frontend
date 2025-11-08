@@ -1,0 +1,54 @@
+<div class="saved-products-page">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-heart"></i> My Saved Products</h1>
+      <p class="subtitle">Products you've saved for later</p>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">
+      <i class="fas fa-spinner fa-spin"></i> Loading saved products...
+    </div>
+
+    <div *ngIf="!isLoading && savedProducts.length === 0" class="empty-state">
+      <i class="far fa-heart"></i>
+      <h3>No saved products yet</h3>
+      <p>Start browsing and save products you're interested in!</p>
+      <button class="btn primary" routerLink="/browse-listings">
+        <i class="fas fa-search"></i> Browse Listings
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && savedProducts.length > 0" class="products-grid">
+      <div class="product-card" *ngFor="let product of savedProducts; trackBy: trackById">
+        <div class="image-wrapper" (click)="viewProduct(product)">
+          <img 
+            [src]="(product.productImages && product.productImages.length > 0) ? product.productImages[0] : product.productImageUrl" 
+            [alt]="product.productName"
+            *ngIf="(product.productImages && product.productImages.length > 0) || product.productImageUrl; else noImage" />
+          <ng-template #noImage>
+            <div class="no-image">No Image Available</div>
+          </ng-template>
+          <div class="overlay">
+            <span class="view-btn">View Details</span>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="product-name" (click)="viewProduct(product)">{{ product.productName }}</h3>
+          <p class="product-price">${{ product.price }}</p>
+          <div class="product-meta">
+            <span class="category"><i class="fas fa-tag"></i> {{ product.category }}</span>
+            <span class="condition"><i class="fas fa-info-circle"></i> {{ product.condition }}</span>
+          </div>
+          <div class="product-footer">
+            <button class="btn-view" (click)="viewProduct(product)">
+              <i class="fas fa-eye"></i> View Product
+            </button>
+            <button class="btn-remove" (click)="removeFromSaved(product.productId)" title="Remove from saved">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

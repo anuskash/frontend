@@ -1,0 +1,43 @@
+<div class="verification-container">
+  <div class="verification-card">
+    <div class="verification-header">
+      <div class="icon-container">
+        <i class="fas fa-clock"></i>
+      </div>
+      <h1>Account Verification Needed</h1>
+      <p>Your account is pending verification</p>
+    </div>
+
+    <div class="verification-content">
+      <div class="status-message">
+        <h3>Almost there!</h3>
+        <p>Your UoN Market Place account has been created successfully, but it requires verification before you can start using the platform.</p>
+        
+        <div class="email-info" *ngIf="userEmail">
+          <p><strong>Account:</strong> {{ userEmail }}</p>
+        </div>
+
+        <div class="steps">
+          <h4>What happens next?</h4>
+          <ul>
+            <li>Our admin team will review your account details</li>
+            <li>We'll verify that you're a current UoN student or staff member</li>
+            <li>You'll receive an email notification once your account is approved</li>
+          </ul>
+        </div>
+
+    </div>
+
+    <div class="verification-actions">
+      <button class="btn-primary" (click)="goToLogin()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Login
+      </button>
+      
+      <button class="btn-secondary" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<div class="notifications-page">
+  <h2>Notifications</h2>
+  <div *ngIf="unreadCount > 0 && !loading" class="unread-badge">
+    <span>{{ unreadCount }} unread</span>
+    <button (click)="markAllAsRead()" [disabled]="markingAll" class="mark-all-btn">Mark all as read</button>
+  </div>
+  <div *ngIf="loading" class="loading">Loading notifications...</div>
+  <div *ngIf="!loading && notifications.length === 0" class="empty">No notifications yet.</div>
+  <ul *ngIf="!loading && notifications.length > 0" class="notification-list">
+    <li *ngFor="let n of notifications" [class.unread]="!n.read">
+      <div class="notification-header">
+        <span class="notification-type" [ngClass]="n.type.toLowerCase()">{{ n.type }}</span>
+        <span class="notification-time">{{ n.timestamp | date:'short' }}</span>
+      </div>
+      <div class="notification-message">{{ n.message }}</div>
+      <div class="notification-reason" *ngIf="n.reason">Reason: {{ n.reason }}</div>
+      <button *ngIf="!n.read" (click)="markAsRead(n)" class="mark-read-btn">Mark as read</button>
+    </li>
+  </ul>
+</div>

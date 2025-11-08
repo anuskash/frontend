@@ -1,0 +1,222 @@
+.verification-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  .verification-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+
+    .verification-header {
+      background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+      color: white;
+      text-align: center;
+      padding: 40px 30px;
+
+      .icon-container {
+        margin-bottom: 20px;
+
+        i {
+          font-size: 64px;
+          opacity: 0.9;
+        }
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+      }
+
+      p {
+        font-size: 18px;
+        opacity: 0.9;
+        margin: 0;
+      }
+    }
+
+    .verification-content {
+      padding: 40px 30px;
+
+      .status-message {
+        h3 {
+          color: #2c3e50;
+          font-size: 24px;
+          margin-bottom: 15px;
+          font-weight: 600;
+        }
+
+        p {
+          color: #555;
+          line-height: 1.6;
+          margin-bottom: 20px;
+        }
+
+        .email-info {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 15px;
+          margin: 20px 0;
+          border-left: 4px solid #f39c12;
+
+          p {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 500;
+          }
+        }
+
+        .steps {
+          margin: 30px 0;
+
+          h4 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+          }
+
+          ul {
+            padding-left: 20px;
+            
+            li {
+              color: #555;
+              line-height: 1.6;
+              margin-bottom: 8px;
+            }
+          }
+        }
+
+        .contact-info {
+          background: #e8f4fd;
+          border-radius: 8px;
+          padding: 20px;
+          margin-top: 25px;
+          border-left: 4px solid #3498db;
+
+          h4 {
+            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+          }
+
+          p {
+            margin: 5px 0;
+            color: #34495e;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .verification-actions {
+      background: #f8f9fa;
+      padding: 25px 30px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      border-top: 1px solid #dee2e6;
+
+      .btn-primary {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover {
+          background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+
+        i {
+          font-size: 14px;
+        }
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover {
+          background: #5a6268;
+          transform: translateY(-1px);
+        }
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .verification-container {
+    padding: 15px;
+
+    .verification-card {
+      .verification-header {
+        padding: 30px 20px;
+
+        .icon-container i {
+          font-size: 48px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        p {
+          font-size: 16px;
+        }
+      }
+
+      .verification-content {
+        padding: 30px 20px;
+      }
+
+      .verification-actions {
+        padding: 20px;
+        flex-direction: column;
+
+        .btn-primary,
+        .btn-secondary {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+<div class="moderation-panel">
+  <div class="header">
+    <h2 class="title">Listings Moderation</h2>
+    <p class="subtitle">Manage marketplace listings</p>
+  </div>
+
+  <form class="actions-bar" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <input type="text" placeholder="Search listings..." class="search-input" formControlName="q" />
+    <select class="filter-select" formControlName="status">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="sold">Sold</option>
+      <option value="hidden">Hidden</option>
+      <option value="flagged">Flagged</option>
+    </select>
+    <button type="button" class="btn-action" (click)="loadFlagged()">Refresh</button>
+  </form>
+
+  <div *ngIf="loading" class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+  <div *ngIf="error" class="empty-state error">{{ error }}</div>
+
+  <div *ngIf="!loading && !error">
+    <div *ngIf="filtered.length === 0" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <p>No listings match the filters.</p>
+    </div>
+
+    <div class="listings-table" *ngIf="filtered.length > 0">
+      <div class="table-header">
+        <div>Product</div>
+        <div>Seller</div>
+        <div>Category</div>
+        <div>Status</div>
+        <div class="actions-col">Actions</div>
+      </div>
+
+      <div class="table-row" *ngFor="let l of filtered">
+        <div class="prod">
+          <div class="thumb" *ngIf="l.productImageUrl || (l.productImages?.length)">
+            <img [src]="(l.productImageUrl || l.productImages![0]) | imageUrl" alt="thumb" onerror="this.src='assets/placeholder.png'" />
+          </div>
+          <div>
+            <div class="name">{{ l.productName }}</div>
+            <div class="meta">#{{ l.productId }} · ${{ l.price }}</div>
+          </div>
+        </div>
+        <div>{{ l.sellerName }}</div>
+        <div>{{ l.category }}</div>
+        <div>
+          <span class="badge" [ngClass]="{
+            'badge-flagged': l.flagged,
+            'badge-hidden': l.status.toLowerCase() === 'hidden',
+            'badge-active': l.status.toLowerCase() === 'available' || l.status.toLowerCase() === 'active'
+          }">{{ l.flagged ? 'Flagged' : l.status }}</span>
+        </div>
+        <div class="actions">
+          <button class="btn small" (click)="unflag(l)" *ngIf="l.flagged">Unflag</button>
+          <button class="btn small warn" (click)="hide(l)" *ngIf="l.status.toLowerCase() !== 'hidden'">Hide</button>
+          <button class="btn small" (click)="unhide(l)" *ngIf="l.status.toLowerCase() === 'hidden'">Unhide</button>
+          <button class="btn small danger" (click)="delete(l)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

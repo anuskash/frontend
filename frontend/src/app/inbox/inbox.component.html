@@ -1,0 +1,44 @@
+<div class="inbox-container">
+  <div class="inbox-header">
+    <h1>Messages</h1>
+    
+    <div class="unread-badge" *ngIf="unreadCount > 0">
+      {{ unreadCount }} unread message{{ unreadCount > 1 ? 's' : '' }}
+    </div>
+  </div>
+
+  <div class="conversations-list" *ngIf="!loading">
+    <div 
+      *ngFor="let conv of conversations" 
+      class="conversation-item"
+      [class.unread]="conv.hasUnread"
+      (click)="openConversation(conv)">
+      
+      <div class="conversation-header">
+        <strong>{{ conv.otherUserName }}</strong>
+        <span class="time">{{ conv.lastMessageTime | date:'short' }}</span>
+      </div>
+      
+      <div class="conversation-product">
+        <i class="bi bi-box"></i> {{ conv.productTitle }}
+      </div>
+      
+      <div class="conversation-preview">
+        {{ conv.lastMessage }}
+      </div>
+      
+      <div class="unread-indicator" *ngIf="conv.hasUnread">
+        <span class="badge">{{ conv.unreadCount }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading conversations...
+  </div>
+
+  <div *ngIf="!loading && conversations.length === 0" class="empty-state">
+    <i class="bi bi-inbox" style="font-size: 48px; color: #ccc;"></i>
+    <p>No messages yet</p>
+  </div>
+</div>

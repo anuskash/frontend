@@ -1,0 +1,33 @@
+<!-- Add this button where appropriate in your template -->
+<div class="product-actions">
+  <button 
+    *ngIf="currentUserId && !isOwner()"
+    (click)="openMessageDialog()" 
+    class="btn-contact-seller">
+    <i class="bi bi-envelope"></i> Contact Seller
+  </button>
+</div>
+
+<!-- Message Dialog Modal -->
+<div class="modal-overlay" *ngIf="showMessageDialog" (click)="closeMessageDialog()">
+  <div class="message-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Send Message to {{ product?.seller?.firstName }} {{ product?.seller?.lastName }}</h3>
+      <button class="close-btn" (click)="closeMessageDialog()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Regarding: <strong>{{ product?.productName }}</strong></p>
+      
+      <textarea 
+        [(ngModel)]="messageContent"
+        placeholder="Type your message here..."
+        rows="5"
+        class="form-control">
+      </textarea>
+    </div>
+    <div class="modal-footer">
+      <button (click)="sendMessage()" class="btn btn-primary">Send</button>
+      <button (click)="closeMessageDialog()" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>

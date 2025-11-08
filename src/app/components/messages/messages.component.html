@@ -1,0 +1,104 @@
+<div class="messages-page">
+  <div class="container">
+    <div class="layout">
+      <!-- Conversations list -->
+      <aside class="conversations">
+        <div class="header">
+          <h2>Messages</h2>
+          <button class="refresh" (click)="loadConversations()" title="Refresh">
+            <i class="fas fa-sync"></i>
+          </button>
+        </div>
+        <div *ngIf="conversationsLoading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+        <div *ngIf="conversationsError && !conversationsLoading && conversations.length === 0" class="error">{{ conversationsError }}</div>
+        <div *ngIf="!conversationsLoading && !conversationsError && conversations.length===0" class="empty">No conversations yet.</div>
+
+        <ul class="conv-list">
+          <li *ngFor="let c of conversations" [class.active]="activeConv && sameConv(c, activeConv)" (click)="selectConversation(c)">
+            <div class="conv-avatar">{{ getConversationInitials(c.otherUserName) }}</div>
+            <div class="conv-details">
+              <div class="title">{{ c.productTitle }}</div>
+              <div class="meta">
+                <span class="user">{{ c.otherUserName }}</span>
+                <span class="time">{{ formatTime(c.lastMessageTime) }}</span>
+              </div>
+              <div class="last">{{ c.lastMessage }}</div>
+            </div>
+            <span class="badge" *ngIf="c.hasUnread">{{ c.unreadCount }}</span>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Conversation thread -->
+      <section class="thread" *ngIf="activeConv; else selectPrompt">
+        <header class="thread-header">
+          <div class="thread-title-row">
+            <div class="thread-avatar">{{ getConversationInitials(activeConv.otherUserName) }}</div>
+            <div class="titles">
+              <h3>{{ activeConv.otherUserName }}</h3>
+              <small>{{ activeConv.productTitle }}</small>
+            </div>
+          </div>
+          <div class="contact-info" *ngIf="!loadingContactInfo">
+            <div class="contact-item" *ngIf="otherUserEmail">
+              <i class="fas fa-envelope"></i>
+              <span>{{ otherUserEmail }}</span>
+              <button class="copy-btn" (click)="copyEmailToClipboard()" title="Copy email">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <div class="contact-item" *ngIf="otherUserPhone">
+              <i class="fas fa-phone"></i>
+              <span>{{ otherUserPhone }}</span>
+              <button class="copy-btn" (click)="copyPhoneToClipboard()" title="Copy phone">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          <div class="loading-contact" *ngIf="loadingContactInfo">
+            <i class="fas fa-spinner fa-spin"></i> Loading contact info...
+          </div>
+        </header>
+
+        <div class="messages" #messagesContainer>
+          <div *ngIf="messagesLoading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+          <div *ngIf="messagesError && !messagesLoading && messages.length === 0" class="error">{{ messagesError }}</div>
+          <div *ngIf="!messagesLoading && !messagesError && messages.length===0" class="empty">No messages yet. Start the conversation!</div>
+
+          <ng-container *ngFor="let m of messages; let i = index">
+            <!-- Date Separator -->
+            <div class="date-separator" *ngIf="isNewDay(i)">
+              <span>{{ formatDate(m.sentAt) }}</span>
+            </div>
+
+            <!-- Message Group -->
+            <div class="msg-group" [class.me]="m.senderId === userId">
+              <!-- Sender Header (avatar + name) - only when sender changes -->
+              <div class="msg-header" *ngIf="shouldShowHeader(i)">
+                <div class="avatar">{{ getAvatarInitials(m.senderId) }}</div>
+                <span class="sender-name">{{ getSenderName(m.senderId) }}</span>
+              </div>
+
+              <!-- Message Bubble -->
+              <div class="bubble" [class.me]="m.senderId === userId">
+                <div class="content">{{ m.content }}</div>
+                <div class="time">{{ formatTimeShort(m.sentAt) }}</div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <footer class="composer">
+          <input type="text" placeholder="Type a message" [(ngModel)]="sendContent" (keyup.enter)="send()" />
+          <button class="send" type="button" (click)="send()" [disabled]="!canSend"><i class="fas fa-paper-plane"></i></button>
+        </footer>
+      </section>
+
+      <ng-template #selectPrompt>
+        <section class="thread placeholder">
+          <p>Select a conversation to start chatting.</p>
+        </section>
+      </ng-template>
+    </div>
+  </div>
+</div>

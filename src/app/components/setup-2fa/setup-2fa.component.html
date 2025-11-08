@@ -1,0 +1,206 @@
+<div class="setup-2fa-page">
+  <div class="setup-container">
+    <div class="setup-card">
+      
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="currentStep === 'loading'">
+        <div class="spinner-wrapper">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <h3>Initializing 2FA Setup...</h3>
+        <p>Please wait while we generate your authentication keys.</p>
+      </div>
+
+      <!-- Step 1: Setup & Backup Codes -->
+      <div class="setup-step" *ngIf="currentStep === 'setup' && setupData">
+        <div class="step-header">
+          <div class="step-number">Step 1 of 2</div>
+          <h2>Set Up Two-Factor Authentication</h2>
+          <p>Scan the QR code with your authenticator app</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="alert alert-success" *ngIf="success">
+          <i class="fas fa-check-circle"></i> {{ success }}
+        </div>
+        <div class="alert alert-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <!-- QR Code Section -->
+        <div class="qr-section">
+          <h3><i class="fas fa-qrcode"></i> Scan QR Code</h3>
+          <div class="qr-wrapper">
+            <img [src]="setupData.qrCodeUrl" alt="QR Code" class="qr-code" />
+          </div>
+          <p class="info-text">
+            Use Google Authenticator, Authy, Microsoft Authenticator, or any TOTP app
+          </p>
+        </div>
+
+        <!-- Manual Entry -->
+        <div class="manual-entry">
+          <h4>Can't scan? Enter manually:</h4>
+          <div class="secret-box">
+            <code>{{ setupData.manualEntryKey }}</code>
+            <button 
+              class="copy-btn" 
+              (click)="copyToClipboard(setupData.secret, 'secret')"
+              title="Copy to clipboard"
+            >
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Backup Codes Section -->
+        <div class="backup-codes-section">
+          <div class="warning-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+              <h3>⚠️ Save Your Backup Codes</h3>
+              <p>These codes will allow you to access your account if you lose your phone. Each code can only be used once.</p>
+            </div>
+          </div>
+
+          <div class="backup-codes-grid">
+            <div class="backup-code" *ngFor="let code of setupData.backupCodes">
+              {{ code }}
+            </div>
+          </div>
+
+          <!-- Save Actions -->
+          <div class="save-actions">
+            <button class="btn-action" (click)="downloadBackupCodes()">
+              <i class="fas fa-download"></i> Download Codes
+            </button>
+            <button class="btn-action" (click)="printBackupCodes()">
+              <i class="fas fa-print"></i> Print Codes
+            </button>
+            <button class="btn-action" (click)="copyToClipboard(setupData.backupCodes.join('\n'), 'backup')">
+              <i class="fas fa-copy"></i> Copy All
+            </button>
+          </div>
+
+          <!-- Confirmation Checkbox -->
+          <div class="confirmation" *ngIf="savedBackupCodes || copiedBackupCodes">
+            <i class="fas fa-check-circle success-icon"></i>
+            <span>Backup codes saved! You can now proceed.</span>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="step-actions">
+          <button class="btn-secondary" (click)="cancelSetup()">
+            Cancel Setup
+          </button>
+          <button 
+            class="btn-primary" 
+            (click)="proceedToVerification()"
+            [disabled]="!savedBackupCodes && !copiedBackupCodes"
+          >
+            Next: Verify Setup <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Verification -->
+      <div class="verify-step" *ngIf="currentStep === 'verify'">
+        <div class="step-header">
+          <div class="step-number">Step 2 of 2</div>
+          <h2>Verify Your Setup</h2>
+          <p>Enter the 6-digit code from your authenticator app</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="alert alert-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <div class="verification-info">
+          <i class="fas fa-mobile-alt"></i>
+          <div>
+            <h4>Open your authenticator app</h4>
+            <p>Find the UON Marketplace entry and enter the current 6-digit code below.</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="verificationCode">Enter 6-Digit Code</label>
+          <input
+            type="text"
+            id="verificationCode"
+            [(ngModel)]="verificationCode"
+            placeholder="000000"
+            maxlength="6"
+            class="code-input"
+            (keyup.enter)="verifyAndEnable2FA()"
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="step-actions">
+          <button class="btn-secondary" (click)="currentStep = 'setup'">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button 
+            class="btn-primary" 
+            (click)="verifyAndEnable2FA()"
+            [disabled]="loading || verificationCode.length !== 6"
+          >
+            <span *ngIf="!loading">Enable 2FA</span>
+            <span *ngIf="loading">
+              <i class="fas fa-spinner fa-spin"></i> Verifying...
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Complete -->
+      <div class="complete-step" *ngIf="currentStep === 'complete'">
+        <div class="success-animation">
+          <div class="checkmark-circle">
+            <i class="fas fa-check"></i>
+          </div>
+        </div>
+
+        <h2>2FA Enabled Successfully!</h2>
+        <p class="success-message">
+          Your account is now protected with two-factor authentication.
+        </p>
+
+        <div class="info-cards">
+          <div class="info-card">
+            <i class="fas fa-shield-alt"></i>
+            <h4>Enhanced Security</h4>
+            <p>Your account is now much more secure against unauthorized access</p>
+          </div>
+          <div class="info-card">
+            <i class="fas fa-key"></i>
+            <h4>Backup Codes</h4>
+            <p>Keep your backup codes safe for emergency access</p>
+          </div>
+        </div>
+
+        <div class="next-steps">
+          <h3>What's Next?</h3>
+          <ul>
+            <li>You'll need your authenticator app code every time you login</li>
+            <li>Store your backup codes in a secure location</li>
+            <li>You can regenerate backup codes in security settings</li>
+          </ul>
+        </div>
+
+        <div class="complete-actions">
+          <button class="btn-primary" (click)="goToDashboard()">
+            Go to Dashboard
+          </button>
+          <button class="btn-secondary" (click)="goToSecuritySettings()">
+            Security Settings
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

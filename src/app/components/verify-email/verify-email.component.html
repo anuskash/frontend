@@ -1,0 +1,54 @@
+<div class="verify-email-page">
+  <div class="verify-container">
+    <div class="verify-card">
+      <div class="icon-wrapper">
+        <i class="fas fa-envelope-open"></i>
+      </div>
+      
+      <h2>Verify Your Email</h2>
+      <p class="subtitle">We've sent a verification code to <strong>{{ email }}</strong></p>
+
+      <div class="alert alert-success" *ngIf="success">
+        <i class="fas fa-check-circle"></i> {{ success }}
+      </div>
+
+      <div class="alert alert-error" *ngIf="error">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+
+      <form (ngSubmit)="verifyEmail()" *ngIf="!success">
+        <div class="form-group">
+          <label for="code">Verification Code</label>
+          <input
+            type="text"
+            id="code"
+            [(ngModel)]="verificationCode"
+            name="code"
+            placeholder="Enter 6-digit code"
+            maxlength="6"
+            required
+            [disabled]="loading"
+            class="code-input"
+          />
+        </div>
+
+        <button type="submit" class="btn-verify" [disabled]="loading || !verificationCode.trim()">
+          <span *ngIf="!loading">Verify Email</span>
+          <span *ngIf="loading">
+            <i class="fas fa-spinner fa-spin"></i> Verifying...
+          </span>
+        </button>
+      </form>
+
+      <div class="resend-section">
+        <p>Didn't receive the code?</p>
+        <button type="button" class="btn-resend" (click)="resendCode()" [disabled]="resending">
+          <span *ngIf="!resending">Resend Code</span>
+          <span *ngIf="resending">
+            <i class="fas fa-spinner fa-spin"></i> Sending...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

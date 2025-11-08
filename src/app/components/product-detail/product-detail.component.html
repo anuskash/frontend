@@ -1,0 +1,259 @@
+<div class="product-detail-page" *ngIf="product as p">
+  <div class="container">
+    <!-- Header Row -->
+    <div class="header-row">
+      <h1 class="title">{{ p.productName }}</h1>
+      <div class="actions">
+        <button class="btn ghost" (click)="toggleSave()" [disabled]="savingProduct">
+          <i class="fa-heart" [class.fas]="isSaved" [class.far]="!isSaved"></i> 
+          {{ isSaved ? 'Saved' : 'Save' }}
+        </button>
+        <button class="btn ghost" (click)="openShareModal()">
+          <i class="fas fa-share-alt"></i> Share
+        </button>
+        <button class="btn ghost" (click)="openReportModal()">
+          <i class="far fa-flag"></i> Report ad
+        </button>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Image column -->
+      <div class="images">
+        <div class="image-viewer">
+          <img [src]="(currentImage | imageUrl) || 'https://via.placeholder.com/800x600/f39c12/ffffff?text=No+Image'" [alt]="p.productName" />
+          <button *ngIf="hasMultipleImages" class="nav prev" (click)="prevImage()" [disabled]="currentImageIndex===0"><i class="fas fa-chevron-left"></i></button>
+          <button *ngIf="hasMultipleImages" class="nav next" (click)="nextImage()" [disabled]="currentImageIndex===images.length-1"><i class="fas fa-chevron-right"></i></button>
+          <div *ngIf="hasMultipleImages" class="counter">{{ currentImageIndex + 1 }}/{{ images.length }}</div>
+        </div>
+        <div class="thumbs" *ngIf="hasMultipleImages">
+          <button class="thumb" *ngFor="let img of images; let i = index" [class.active]="i===currentImageIndex" (click)="goToImage(i)">
+            <img [src]="img | imageUrl" [alt]="'Image ' + (i+1)" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Info column -->
+      <div class="info">
+        <div class="price">{{ formatPrice(p.price) }}</div>
+        <div class="meta">
+          <div><strong>Category:</strong> {{ p.category }}</div>
+          <div><strong>Condition:</strong> {{ p.condition }}</div>
+          <div *ngIf="p.postedDate"><strong>Posted:</strong> {{ p.postedDate | date:'mediumDate' }}</div>
+          <div><strong>Seller:</strong> {{ p.sellerName }}</div>
+        </div>
+        <div class="description">
+          <h3>Description</h3>
+          <p>{{ p.productDescription || 'No description provided.' }}</p>
+        </div>
+
+        <!-- Get in touch -->
+        <div class="contact">
+          <h3>Get in touch</h3>
+          <div class="contact-body">
+            <div class="field">
+              <label>Send in-app message</label>
+              <div class="inline">
+                <input 
+                  type="text" 
+                  placeholder="Type your message..." 
+                  [(ngModel)]="messageContent"
+                  [disabled]="messageSending"
+                  (keyup.enter)="sendMessage(messageContent)" />
+                <button 
+                  class="btn" 
+                  (click)="sendMessage(messageContent)" 
+                  [disabled]="!messageContent.trim() || messageSending">
+                  <i class="fas" [class.fa-paper-plane]="!messageSending" [class.fa-spinner]="messageSending" [class.fa-spin]="messageSending"></i> 
+                  {{ messageSending ? 'Sending...' : 'Send' }}
+                </button>
+              </div>
+              <small class="info-text">Seller will be notified by email automatically.</small>
+              <div class="message-feedback" *ngIf="messageSuccess || messageError">
+                <div class="success-message" *ngIf="messageSuccess">
+                  <i class="fas fa-check-circle"></i> Message sent successfully! The seller will be notified.
+                </div>
+                <div class="error-message" *ngIf="messageError">
+                  <i class="fas fa-exclamation-circle"></i> Failed to send message. Please try again.
+                </div>
+              </div>
+            </div>
+            <div class="field compact" *ngIf="sellerEmail || sellerPhone">
+              <label>Or contact directly</label>
+              <div class="inline" *ngIf="sellerEmail">
+                <input type="email" [value]="sellerEmail" readonly />
+                <button (click)="copy(sellerEmail)" title="Copy email"><i class="fas fa-copy"></i></button>
+                <a class="btn" [href]="'mailto:' + sellerEmail + '?subject=Enquiry: ' + p.productName">
+                  <i class="fas fa-envelope"></i> Email
+                </a>
+              </div>
+              <div class="inline" *ngIf="sellerPhone">
+                <input type="tel" [value]="sellerPhone" readonly />
+                <button (click)="copy(sellerPhone)" title="Copy phone"><i class="fas fa-copy"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ratings & reviews -->
+    <section class="reviews">
+      <h3>Ratings & reviews</h3>
+      <p>This listing has {{ totalSellerReviews + totalBuyerReviews }} reviews.</p>
+      <a class="btn" [routerLink]="['/my-reviews']">Leave a review</a>
+    </section>
+
+    <!-- You may also like -->
+    <section class="similar" *ngIf="similarProducts.length">
+      <h3>You may also like</h3>
+      <div class="grid">
+        <div class="card" *ngFor="let sp of similarProducts; trackBy: trackById" (click)="navigateToSimilar(sp)">
+          <img [src]="(sp.productImages?.[0] || sp.productImageUrl) | imageUrl" [alt]="sp.productName" />
+          <div class="name">{{ sp.productName }}</div>
+          <div class="price">{{ formatPrice(sp.price) }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <h3>UON Marketplace</h3>
+            <p>Your trusted student marketplace for buying and selling safely.</p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+              </a>
+              <a href="#" aria-label="Twitter">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                </svg>
+              </a>
+              <a href="#" aria-label="Instagram">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="footer-column">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a routerLink="/browse-listings">Browse Items</a></li>
+              <li><a routerLink="/add-listing">Sell an Item</a></li>
+              <li><a routerLink="/my-listings">My Listings</a></li>
+              <li><a routerLink="/my-purchases">My Purchases</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Safety Tips</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">FAQs</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>Legal</h4>
+            <ul>
+              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Cookie Policy</a></li>
+              <li><a href="#">Community Guidelines</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2025 UON Marketplace. All rights reserved.</p>
+          <p class="footer-tagline">Student Buy & Sell Platform</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" *ngIf="showShareModal" (click)="closeShareModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-share-alt"></i> Share this product</h3>
+      <button class="close-btn" (click)="closeShareModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="share-description">Share this product with others</p>
+      <div class="share-options">
+        <button class="share-btn" (click)="copyLink()">
+          <i class="fas fa-link"></i>
+          <span>Copy Link</span>
+        </button>
+        <button class="share-btn" (click)="shareViaEmail()">
+          <i class="fas fa-envelope"></i>
+          <span>Email</span>
+        </button>
+        <button class="share-btn" (click)="shareNative()">
+          <i class="fas fa-share"></i>
+          <span>Share</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-flag"></i> Report this ad</h3>
+      <button class="close-btn" (click)="closeReportModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="report-description">Help us keep the marketplace safe. Please select a reason for reporting this ad.</p>
+      <form (ngSubmit)="submitReport()">
+        <div class="form-group">
+          <label for="reportReason">Reason *</label>
+          <input id="reportReason" [(ngModel)]="reportReason" name="reportReason" required class="form-control" placeholder="Type the reason (e.g. Scam, Misleading, etc.)" />
+        </div>
+        <div class="form-group">
+          <label for="reportDescription">Additional Details (Optional)</label>
+          <textarea 
+            id="reportDescription" 
+            [(ngModel)]="reportDescription" 
+            name="reportDescription"
+            class="form-control"
+            rows="4"
+            placeholder="Provide any additional information that might help us review this report..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn secondary" (click)="closeReportModal()">Cancel</button>
+          <button type="submit" class="btn danger" [disabled]="!reportReason || reportSubmitting">
+            <i class="fas" [class.fa-flag]="!reportSubmitting" [class.fa-spinner]="reportSubmitting" [class.fa-spin]="reportSubmitting"></i>
+            {{ reportSubmitting ? 'Submitting...' : 'Submit Report' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="product-detail-page" *ngIf="!product">
+  <div class="container">
+    <p>Product not found.</p>
+    <a class="btn" routerLink="/browse-listings"><i class="fas fa-arrow-left"></i> Back to listings</a>
+  </div>
+</div>

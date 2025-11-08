@@ -1,0 +1,47 @@
+.audit-panel { padding: 24px; background: #f8fafc; min-height: 100vh; }
+
+.header { 
+  margin-bottom: 24px;
+  .title { font-size: 24px; font-weight: 700; margin: 0; color: #0f172a; }
+  .subtitle { color: #64748b; margin: 6px 0 0; font-size: 14px; }
+}
+
+.filters { 
+  display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  .filter-input, .filter-select { 
+    padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; flex: 1; min-width: 150px; background: #fff; color: #0f172a;
+    &:focus { outline: none; border-color: #3b82f6; }
+  }
+  .btn-filter { 
+    padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: pointer; font-weight: 600; transition: .2s;
+    &:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  }
+}
+
+.empty-state { 
+  background: white; border-radius: 12px; padding: 48px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: #64748b;
+  i { font-size: 48px; margin-bottom: 16px; color: #cbd5e1; }
+  &.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+}
+
+.logs {
+  background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  .log-row { 
+    display: grid; grid-template-columns: 1.2fr 1fr 1.2fr 1.2fr 2fr; gap: 16px; align-items: center; padding: 14px 20px; border-bottom: 1px solid #f1f5f9;
+    &.header { 
+      background: #f8fafc; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0;
+    }
+    &:not(.header):hover { background: #f8fafc; }
+    &:last-child { border-bottom: none; }
+  }
+  .muted { color: #64748b; font-size: 13px; }
+}
+
+.badge { 
+  display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; background: #f1f5f9; color: #475569;
+}
+
+@media (max-width: 768px) {
+  .logs .log-row { grid-template-columns: 1fr; gap: 8px; }
+  .filters { flex-direction: column; }
+}
