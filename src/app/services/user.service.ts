@@ -12,7 +12,8 @@ import {
   SellerReviewRequest,
   SellerReviewResponse,
   BuyerReviewRequest,
-  BuyerReviewResponse 
+  BuyerReviewResponse,
+  ContentModerationResult 
 } from '../models/product.model';
 import { ProductReviews } from '../models/product-reviews.model';
 import { MyReviews } from '../models/my-reviews.model';
@@ -195,6 +196,15 @@ export class UserService {
   updateProductImages(productId: number, imageUrls: string[]): Observable<{ productId: number; updated: boolean; count: number }> {
     const url = `${this.baseUrl}/users/product/${productId}/images`;
     return this.http.put<{ productId: number; updated: boolean; count: number }>(url, { imageUrls });
+  }
+
+  /**
+   * POST /users/test-moderation
+   * Test content moderation for a product before submission
+   */
+  testModeration(product: MarketPlaceProductRequest): Observable<ContentModerationResult> {
+    const url = `${this.baseUrl}/users/test-moderation`;
+    return this.http.post<ContentModerationResult>(url, product);
   }
 
   // =================================================================

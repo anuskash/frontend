@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
-import { MarketPlaceProductRequest } from '../../models/product.model';
+import { MarketPlaceProductRequest, ContentModerationResult } from '../../models/product.model';
 import { UploadService } from '../../services/upload.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ToastService } from '../../services/toast.service';
@@ -345,7 +345,7 @@ export class AddListingComponent implements OnInit {
 
       const finalizeCreateOrUpdate = (uploadedImageUrls: string[]) => {
         if (this.isEditMode && this.productId) {
-          // UPDATE MODE
+          // UPDATE MODE - Test moderation first
           const updateRequest: MarketPlaceProductRequest = {
             sellerId: currentUser.userId,
             productName: this.addListingForm.value.productName,
@@ -357,28 +357,67 @@ export class AddListingComponent implements OnInit {
             productImageUrl: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : undefined
           };
 
-          this.userService.updateProduct(this.productId, currentUser.userId, updateRequest).subscribe({
-            next: () => {
-              this.successMessage = 'Listing updated successfully!';
-              this.isSubmitting = false;
-              setTimeout(() => {
-                this.router.navigate(['/my-listings']);
-              }, 2000);
+          // Test moderation before updating the product
+          this.userService.testModeration(updateRequest).subscribe({
+            next: (moderationResult: ContentModerationResult) => {
+              if (!moderationResult.approved) {
+                // Product update was not approved by moderation
+                this.isSubmitting = false;
+                
+                // Build error message based on moderation result
+                let errorMsg = moderationResult.reason || 'This listing contains prohibited content.';
+                
+                if (moderationResult.detectedKeywords && moderationResult.detectedKeywords.length > 0) {
+                  const keywords = moderationResult.detectedKeywords.join(', ');
+                  errorMsg = `Cannot update listing. Detected prohibited content: ${keywords}`;
+                }
+                
+                // Show error in toast based on severity
+                if (moderationResult.severity === 'high') {
+                  this.toast.error(errorMsg);
+                } else if (moderationResult.severity === 'medium') {
+                  this.toast.warn(errorMsg);
+                } else {
+                  this.toast.info(errorMsg);
+                }
+                
+                this.errorMessage = errorMsg;
+                return;
+              }
+              
+              // If moderation passed, proceed with updating the product
+              this.userService.updateProduct(this.productId!, currentUser.userId, updateRequest).subscribe({
+                next: () => {
+                  this.successMessage = 'Listing updated successfully!';
+                  this.toast.success('Listing updated successfully!');
+                  this.isSubmitting = false;
+                  setTimeout(() => {
+                    this.router.navigate(['/my-listings']);
+                  }, 2000);
+                },
+                error: (error) => {
+                  console.error('Error updating listing:', error);
+                  if (error.status === 403) {
+                    this.errorMessage = 'You can only edit your own products';
+                  } else if (error.status === 400) {
+                    this.errorMessage = error.error?.error || 'Product rejected by content moderation';
+                  } else {
+                    this.errorMessage = 'Failed to update listing. Please try again.';
+                  }
+                  this.toast.error(this.errorMessage);
+                  this.isSubmitting = false;
+                }
+              });
             },
             error: (error) => {
-              console.error('Error updating listing:', error);
-              if (error.status === 403) {
-                this.errorMessage = 'You can only edit your own products';
-              } else if (error.status === 400) {
-                this.errorMessage = error.error?.error || 'Product rejected by content moderation';
-              } else {
-                this.errorMessage = 'Failed to update listing. Please try again.';
-              }
+              console.error('Error testing moderation:', error);
+              this.errorMessage = 'Failed to validate listing. Please try again.';
+              this.toast.error(this.errorMessage);
               this.isSubmitting = false;
             }
           });
         } else {
-          // CREATE MODE
+          // CREATE MODE - Test moderation first
           const productRequest: MarketPlaceProductRequest = {
             sellerId: currentUser.userId,
             productName: this.addListingForm.value.productName,
@@ -391,35 +430,76 @@ export class AddListingComponent implements OnInit {
             productImageUrl: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : undefined
           };
 
-          this.userService.addProduct(productRequest).subscribe({
-            next: () => {
-              this.successMessage = 'Listing created successfully!';
-              this.isSubmitting = false;
-              setTimeout(() => {
-                this.router.navigate(['/my-listings']);
-              }, 2000);
+          // Test moderation before creating the product
+          this.userService.testModeration(productRequest).subscribe({
+            next: (moderationResult: ContentModerationResult) => {
+              if (!moderationResult.approved) {
+                // Product was not approved by moderation
+                this.isSubmitting = false;
+                
+                // Build error message based on moderation result
+                let errorMsg = moderationResult.reason || 'This listing contains prohibited content.';
+                
+                if (moderationResult.detectedKeywords && moderationResult.detectedKeywords.length > 0) {
+                  const keywords = moderationResult.detectedKeywords.join(', ');
+                  errorMsg = `Cannot post listing. Detected prohibited content: ${keywords}`;
+                }
+                
+                // Show error in toast based on severity
+                if (moderationResult.severity === 'high') {
+                  this.toast.error(errorMsg);
+                } else if (moderationResult.severity === 'medium') {
+                  this.toast.warn(errorMsg);
+                } else {
+                  this.toast.info(errorMsg);
+                }
+                
+                this.errorMessage = errorMsg;
+                return;
+              }
+              
+              // If moderation passed, proceed with creating the product
+              this.userService.addProduct(productRequest).subscribe({
+                next: () => {
+                  this.successMessage = 'Listing created successfully!';
+                  this.toast.success('Listing created successfully!');
+                  this.isSubmitting = false;
+                  setTimeout(() => {
+                    this.router.navigate(['/my-listings']);
+                  }, 2000);
+                },
+                error: (error) => {
+                  console.error('Error creating listing:', error);
+                  const backendMsg = error?.error?.error || error?.error?.message || error?.message || '';
+                  
+                  // If backend message contains 'prohibited' or 'inappropriate', show a clear error
+                  if (backendMsg && (backendMsg.toLowerCase().includes('prohibited') || backendMsg.toLowerCase().includes('inappropriate'))) {
+                    // Try to extract the word
+                    let word = '';
+                    const match = backendMsg.match(/prohibited keyword: ([^\s]+)/i) || backendMsg.match(/inappropriate word: ([^\s]+)/i);
+                    if (match && match[1]) {
+                      word = match[1];
+                    } else {
+                      // Try to extract quoted word
+                      const quoted = backendMsg.match(/['"]([^'"]+)['"]/);
+                      if (quoted && quoted[1]) word = quoted[1];
+                    }
+                    this.errorMessage = word
+                      ? `Can't post this item. This marketplace does not allow listing of "${word}" or similar products.`
+                      : `Can't post this item. This marketplace does not allow listing of this product due to inappropriate content.`;
+                  } else {
+                    this.errorMessage = 'Failed to create listing. Please try again.';
+                  }
+                  
+                  this.toast.error(this.errorMessage);
+                  this.isSubmitting = false;
+                }
+              });
             },
             error: (error) => {
-              console.error('Error creating listing:', error);
-              const backendMsg = error?.error?.error || error?.error?.message || error?.message || '';
-              // If backend message contains 'prohibited' or 'inappropriate', show a clear error
-              if (backendMsg && (backendMsg.toLowerCase().includes('prohibited') || backendMsg.toLowerCase().includes('inappropriate'))) {
-                // Try to extract the word
-                let word = '';
-                const match = backendMsg.match(/prohibited keyword: ([^\s]+)/i) || backendMsg.match(/inappropriate word: ([^\s]+)/i);
-                if (match && match[1]) {
-                  word = match[1];
-                } else {
-                  // Try to extract quoted word
-                  const quoted = backendMsg.match(/['"]([^'"]+)['"]/);
-                  if (quoted && quoted[1]) word = quoted[1];
-                }
-                this.errorMessage = word
-                  ? `Can't post this item. This marketplace does not allow listing of "${word}" or similar products.`
-                  : `Can't post this item. This marketplace does not allow listing of this product due to inappropriate content.`;
-              } else {
-                this.errorMessage = 'Failed to create listing. Please try again.';
-              }
+              console.error('Error testing moderation:', error);
+              this.errorMessage = 'Failed to validate listing. Please try again.';
+              this.toast.error(this.errorMessage);
               this.isSubmitting = false;
             }
           });
