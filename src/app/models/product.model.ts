@@ -118,3 +118,13 @@ export interface MarketPlaceProduct {
   status: string;
   flagged?: boolean; // Admin moderation flag
 }
+
+export interface ContentModerationResult {
+  approved: boolean;
+  flagged: boolean;
+  rejected: boolean;
+  reason?: string;
+  severity?: 'high' | 'medium' | 'low';
+  detectedKeywords?: string[];
+  recommendedAction?: 'approve' | 'flag_for_review' | 'auto_reject';
+}
