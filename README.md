@@ -432,27 +432,6 @@ Configure the preferred end-to-end testing framework before use.
   "watch": "ng build --watch"
 }
 ```
-
----
-
-## 📚 Documentation
-
-Comprehensive documentation is available in the repository:
-
-- **`AUTHENTICATION_FLOW.md`** - Complete authentication system documentation
-- **`BACKEND_FRONTEND_API_INTEGRATION.md`** - All 48 API endpoints with request/response formats
-- **`USER_FEATURES_SUMMARY.md`** - Detailed user feature documentation
-- **`FRONTEND_AUDIT_REPORT.md`** - Code quality and integration audit
-- **`LANDING_PAGE_MODERNIZATION.md`** - UI/UX enhancements and animations
-- **`admin-api-docs.md`** - Admin controller API documentation
-- **`user-endpoints-details.md`** - User controller API documentation
-- **`BACKEND_REQUIREMENTS.md`** - Backend implementation requirements
-- **`BACKEND_API_ALIGNMENT_FIX.md`** - API alignment fixes and updates
-- **`BACKEND_FIX_PROHIBITED_KEYWORDS.md`** - Prohibited keywords feature guide
-- **`PRODUCT_REPORTING_UPDATE.md`** - Product reporting feature documentation
-
----
-
 ## 🎨 UI/UX Features
 
 - **Modern Landing Page:** Gradient animations, shimmer effects, glassmorphism
