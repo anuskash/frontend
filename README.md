@@ -280,8 +280,6 @@ The frontend integrates with **48 backend REST API endpoints** across:
 - Admin review reports
 - Flag/unflag content
 
-See `BACKEND_FRONTEND_API_INTEGRATION.md` for complete endpoint documentation.
-
 ### Response Handling
 
 All services implement error handling:
