@@ -143,7 +143,6 @@ The following software must be installed before proceeding:
 
 The frontend requires a running backend server. Ensure the following:
 - Backend server is running on `http://localhost:8080` (or update `environment.ts` accordingly)
-- Database is configured and migrations have been executed
 - CORS is enabled for `http://localhost:4200`
 
 ---
