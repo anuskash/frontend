@@ -75,6 +75,14 @@ export class AdminDashboardComponent implements OnInit {
         this.activeListings = products.filter(p => p.status === 'Available' || p.status === 'AVAILABLE').length;
         this.flaggedListings = products.filter(p => (p as any).flagged).length;
         this.recentListings = products.slice(0, 5);
+        this.adminService.getPendingReports().subscribe({
+          next: (count) => {
+            this.pendingReports = count.length;
+          },
+          error: (err) => {
+            console.error('Error loading pending reports count:', err);
+          }
+        });
         this.loading = false;
       },
       error: (err) => {
@@ -82,9 +90,6 @@ export class AdminDashboardComponent implements OnInit {
         this.loading = false;
       }
     });
-    
-    // Placeholder for reports (will implement when endpoint is ready)
-    this.pendingReports = 0;
   }
 
   private isActive(status: string): boolean {
