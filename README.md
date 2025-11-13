@@ -80,13 +80,6 @@ This repository contains the Angular frontend. The backend (Spring Boot/Java) is
   - Handle product reports
   - Review and moderate user reviews
   - Hide/unhide listings
-  
-- **Audit System**
-  - Comprehensive audit logs
-  - Filter by action, user, date range
-  - Export logs to CSV
-  - Track all admin actions
-
 ---
 
 ## 🛠 Tech Stack
