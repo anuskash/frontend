@@ -206,7 +206,14 @@
       font-size: 14px;
       color: #0f172a;
     }
-    .user-avatar .user-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-avatar .user-name { 
+      max-width: 150px; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 500;
+    }
     .chevron { width: 14px; height: 14px; stroke-width: 2.5; }
 
     .dropdown-menu {
