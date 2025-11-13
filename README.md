@@ -1,6 +1,6 @@
 # UoN Student Marketplace - Frontend
 
-A modern, feature-rich Angular marketplace application for University of Nottingham students to buy and sell items within their campus community.
+A modern, feature-rich Angular marketplace application for UoN students to buy and sell items within their campus community.
 
 ## 📋 Table of Contents
 
@@ -16,81 +16,19 @@ A modern, feature-rich Angular marketplace application for University of Notting
 - [Development](#development)
 - [Documentation](#documentation)
 
-<<<<<<< HEAD
-# UON Marketplace Frontend
-
-A modern, feature-rich Angular frontend for the UON Marketplace platform. This application allows users to browse, list, and manage products, interact with other users, and receive notifications. Admins can moderate listings, manage users, and view reports.
-
-## Features
-
-- User registration, login, and profile management
-- Product listing, browsing, and detail views
-- Messaging system between users
-- Notification system (in-app and email)
-- Admin dashboard for user and product moderation
-- Product reporting and review system
-- Security features (2FA, password reset, etc.)
-- Responsive and modern UI
-
-## Installation
-
-1. **Clone the repository:**
-	```bash
-	git clone https://github.com/anuskash/frontend.git
-	cd frontend
-	```
-2. **Install dependencies:**
-	```bash
-	npm install
-	```
-3. **Run the development server:**
-	```bash
-	ng serve
-	```
-	The app will be available at `http://localhost:4200/`.
-
-## Usage
-
-- Register or log in to access the marketplace features.
-- Browse products, add new listings, and communicate with other users.
-- Admins can access the admin dashboard for moderation and reporting.
-
-## Project Structure
-
-- `src/app/components/` - Angular components for user and admin features
-- `src/app/services/` - API and utility services
-- `src/app/models/` - TypeScript models
-- `src/assets/` - Static assets
-- `src/environments/` - Environment configuration
-
-## Contribution Guidelines
-
-1. Fork the repository and create your branch from `main`.
-2. Make your changes and commit them with clear messages.
-3. Push to your fork and submit a pull request.
-4. Ensure your code follows the existing style and passes all tests.
-
-## License
-
-This project is licensed under the MIT License.
-
-## Contact
-
-For questions or support, please contact [anuskash](mailto:your-email@example.com).
-=======
 ---
 
 ## 🎯 Overview
 
-The UoN Student Marketplace is a secure, student-only platform that enables University of Nottingham students to:
+The UoN Student Marketplace is a secure, student-only platform that enables UoN students to:
 - Browse and search listings across various categories
 - Post items for sale with multiple images
 - Save favorite products for later viewing
-- Communicate with buyers/sellers through integrated messaging
+- Communicate with buyers and sellers through integrated messaging
 - Leave reviews for transactions
 - Report inappropriate content
 
-**Important:** This repository contains **only the Angular frontend**. The backend (Spring Boot/Java) is maintained in a separate private repository.
+This repository contains the Angular frontend. The backend (Spring Boot/Java) is maintained in a separate private repository.
 
 ---
 
@@ -172,45 +110,47 @@ The UoN Student Marketplace is a secure, student-only platform that enables Univ
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- npm (v9 or higher)
-- Angular CLI (`npm install -g @angular/cli`)
+
+The following software must be installed before proceeding:
+- Node.js (version 18 or higher)
+- npm (version 9 or higher)
+- Angular CLI (install globally using `npm install -g @angular/cli`)
 
 ### Installation
 
-1. **Clone the repository**
+1. Clone the repository:
    ```bash
    git clone https://github.com/anuskash/frontend.git
    cd frontend
    ```
 
-2. **Install dependencies**
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. **Configure environment**
+3. Configure the environment:
    
-   Update `src/environments/environment.ts`:
+   Edit `src/environments/environment.ts` to specify the backend API URL:
    ```typescript
    export const environment = {
      production: false,
-     apiUrl: 'http://localhost:8080/api'  // Your backend URL
+     apiUrl: 'http://localhost:8080/api'
    };
    ```
 
-4. **Start development server**
+4. Start the development server:
    ```bash
    ng serve
    ```
    
-   Navigate to `http://localhost:4200/` in your browser.
+   The application will be accessible at `http://localhost:4200/`.
 
-### Backend Setup
+### Backend Requirements
 
-This frontend requires a running backend server. Ensure:
-- Backend is running on `http://localhost:8080` (or update `environment.ts`)
-- Database is configured and migrations are run
+The frontend requires a running backend server. Ensure the following:
+- Backend server is running on `http://localhost:8080` (or update `environment.ts` accordingly)
+- Database is configured and migrations have been executed
 - CORS is enabled for `http://localhost:4200`
 
 ---
@@ -298,17 +238,17 @@ src/
 ```
 
 **Session Management:**
-- User data stored in `localStorage` as `currentUser`
+- User data is stored in `localStorage` as `currentUser`
 - `AuthInterceptor` automatically adds `userId` header to requests
-- Persists across page refreshes
-- Cleared on logout
+- Session persists across page refreshes
+- Session is cleared on logout
 
 ### Route Protection
 
 Routes are protected using Angular guards:
-- `AdminGuard` - Requires admin role
-- `SuperAdminGuard` - Requires super admin role
-- Auth checks in components for feature-level restrictions
+- `AdminGuard` - Restricts access to users with admin role
+- `SuperAdminGuard` - Restricts access to users with super admin role
+- Additional authentication checks are implemented in components for feature-level restrictions
 
 ---
 
@@ -321,7 +261,7 @@ Routes are protected using Angular guards:
 - UserService: `/api/users`
 - AdminService: `/api/admin`
 
-### API Endpoints
+### API Endpoints d
 
 The frontend integrates with **48 backend REST API endpoints** across:
 
@@ -352,7 +292,7 @@ See `BACKEND_FRONTEND_API_INTEGRATION.md` for complete endpoint documentation.
 
 ### Response Handling
 
-All services implement proper error handling:
+All services implement error handling:
 ```typescript
 this.http.get<Product[]>(url).pipe(
   catchError(error => {
@@ -442,19 +382,19 @@ this.http.get<Product[]>(url).pipe(
 
 ## 💻 Development
 
-### Running the App
+### Running the Application
 
 **Development server:**
 ```bash
 ng serve
 ```
-App runs at `http://localhost:4200/` with auto-reload.
+The application runs at `http://localhost:4200/` with automatic reload on file changes.
 
 **Production build:**
 ```bash
 ng build
 ```
-Artifacts stored in `dist/` directory.
+Build artifacts are stored in the `dist/` directory.
 
 ### Code Generation
 
@@ -473,24 +413,24 @@ ng generate service services/service-name
 ng generate guard guards/guard-name
 ```
 
-**All schematics:**
+**View all available schematics:**
 ```bash
 ng generate --help
 ```
 
 ### Testing
 
-**Unit tests:**
+**Run unit tests:**
 ```bash
 ng test
 ```
-Runs tests with Karma test runner.
+Tests are executed using the Karma test runner.
 
-**E2E tests:**
+**Run end-to-end tests:**
 ```bash
 ng e2e
 ```
-Configure your preferred E2E testing framework.
+Configure the preferred end-to-end testing framework before use.
 
 ### Available npm Scripts
 
@@ -562,7 +502,7 @@ export const environment = {
 
 ### Backend CORS Configuration
 
-Ensure backend allows:
+Ensure the backend allows requests from the frontend origin:
 ```java
 @CrossOrigin(origins = "http://localhost:4200")
 ```
@@ -571,17 +511,17 @@ Ensure backend allows:
 
 ## 🤝 Contributing
 
-This is a private university project. For contributions:
-1. Create a feature branch
-2. Follow existing code patterns
-3. Update documentation
-4. Submit pull request with detailed description
+This is a private university project. Contributions should follow these guidelines:
+1. Create a feature branch from the main branch
+2. Follow existing code patterns and conventions
+3. Update relevant documentation
+4. Submit a pull request with a detailed description of changes
 
 ---
 
 ## 📝 License
 
-This project is part of a university coursework assignment for the University of Nottingham.
+This project is part of a university coursework assignment for UoN.
 
 ---
 
@@ -589,11 +529,11 @@ This project is part of a university coursework assignment for the University of
 
 For backend-related issues, coordinate with the backend repository maintainer.
 
-For frontend issues, create an issue in this repository with:
-- Steps to reproduce
-- Expected vs actual behavior
+For frontend issues, create an issue in this repository including:
+- Steps to reproduce the issue
+- Expected versus actual behavior
 - Browser console logs
-- Network tab details (for API errors)
+- Network tab details (for API-related errors)
 
 ---
 
@@ -601,17 +541,16 @@ For frontend issues, create an issue in this repository with:
 
 ### Frontend Deployment
 1. Build for production: `ng build --configuration production`
-2. Deploy `dist/` contents to static hosting (Netlify, Vercel, AWS S3, etc.)
-3. Configure environment variables on hosting platform
-4. Ensure CORS is configured on backend for production domain
+2. Deploy contents of `dist/` directory to static hosting platform (e.g., Netlify, Vercel, AWS S3)
+3. Configure environment variables on the hosting platform
+4. Ensure CORS is configured on the backend for the production domain
 
 ### Backend Requirements
-- Ensure backend is deployed and accessible
-- Update `environment.prod.ts` with production API URL
+- Ensure the backend is deployed and accessible
+- Update `environment.prod.ts` with the production API URL
 - Configure authentication tokens and session management
-- Set up SSL/TLS for secure communication
+- Configure SSL/TLS for secure communication
 
 ---
 
-**Built with ❤️ for the University of Nottingham student community**
->>>>>>> origin/cleanup
+UoN Student Marketplace
