@@ -476,18 +476,6 @@ Ensure the backend allows requests from the frontend origin:
 @CrossOrigin(origins = "http://localhost:4200")
 ```
 
----
-
-## 🤝 Contributing
-
-This is a private university project. Contributions should follow these guidelines:
-1. Create a feature branch from the main branch
-2. Follow existing code patterns and conventions
-3. Update relevant documentation
-4. Submit a pull request with a detailed description of changes
-
----
-
 ## 📝 License
 
 This project is part of a university coursework assignment for UoN.
