@@ -2,7 +2,7 @@
 
 A modern, feature-rich Angular marketplace application for UoN students to buy and sell items within their campus community.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -18,7 +18,7 @@ A modern, feature-rich Angular marketplace application for UoN students to buy a
 
 ---
 
-## 🎯 Overview
+## Overview
 
 The UoN Student Marketplace is a secure, student-only platform that enables UoN students to:
 - Browse and search listings across various categories
@@ -32,7 +32,7 @@ This repository contains the Angular frontend. The backend (Spring Boot/Java) is
 
 ---
 
-## ✨ Features
+## Features
 
 ### Public Features
 - Modern landing page with smooth animations and gradient effects
@@ -82,7 +82,7 @@ This repository contains the Angular frontend. The backend (Spring Boot/Java) is
   - Hide/unhide listings
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Framework:** Angular 19
 - **Language:** TypeScript 5.7
@@ -100,7 +100,7 @@ This repository contains the Angular frontend. The backend (Spring Boot/Java) is
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -147,7 +147,7 @@ The frontend requires a running backend server. Ensure the following:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -187,7 +187,7 @@ src/
 
 ---
 
-## 🔐 Authentication & Authorization
+## Authentication & Authorization
 
 ### User States
 
@@ -244,7 +244,7 @@ Routes are protected using Angular guards:
 
 ---
 
-## 🔌 API Integration
+## API Integration
 
 ### Base Configuration
 
@@ -294,7 +294,7 @@ this.http.get<Product[]>(url).pipe(
 
 ---
 
-## 👥 User Features
+## User Features
 
 ### Product Management
 - **Create Listing:** Multi-step form with image upload, category selection, pricing
@@ -326,7 +326,7 @@ this.http.get<Product[]>(url).pipe(
 
 ---
 
-## 👨‍💼 Admin Features
+## Admin Features
 
 ### User Management
 - View all registered users
@@ -370,7 +370,7 @@ this.http.get<Product[]>(url).pipe(
 
 ---
 
-## 💻 Development
+## Development
 
 ### Running the Application
 
@@ -432,7 +432,7 @@ Configure the preferred end-to-end testing framework before use.
   "watch": "ng build --watch"
 }
 ```
-## 🎨 UI/UX Features
+## UI/UX Features
 
 - **Modern Landing Page:** Gradient animations, shimmer effects, glassmorphism
 - **Responsive Design:** Mobile-first approach with breakpoints at 480px, 768px, 1024px, 1200px
@@ -449,7 +449,7 @@ Configure the preferred end-to-end testing framework before use.
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -476,13 +476,13 @@ Ensure the backend allows requests from the frontend origin:
 @CrossOrigin(origins = "http://localhost:4200")
 ```
 
-## 📝 License
+## License
 
 This project is part of a university coursework assignment for UoN.
 
 ---
 
-## 📞 Support
+## Support
 
 For backend-related issues, coordinate with the backend repository maintainer.
 
@@ -494,7 +494,7 @@ For frontend issues, create an issue in this repository including:
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### Frontend Deployment
 1. Build for production: `ng build --configuration production`
